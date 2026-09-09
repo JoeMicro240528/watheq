@@ -58,6 +58,7 @@ export default function Page() {
           <a href="#why" className="transition-colors hover:text-foreground">لماذا ثقة؟</a>
           <a href="#how" className="transition-colors hover:text-foreground">كيف يعمل؟</a>
           <a href="#security" className="transition-colors hover:text-foreground">الأمان والثقة</a>
+          <a href="/guide" className="transition-colors font-bold text-primary hover:text-foreground">دليل المطورين</a>
         </nav>
         <div className="hidden items-center gap-5 md:flex">
           <a href="#login" className="text-sm font-semibold text-muted-foreground hover:text-foreground">تسجيل الدخول</a>
@@ -73,6 +74,7 @@ export default function Page() {
           <a href="#why" onClick={() => setMobileOpen(false)}>لماذا ثقة؟</a>
           <a href="#how" onClick={() => setMobileOpen(false)}>كيف يعمل؟</a>
           <a href="#security" onClick={() => setMobileOpen(false)}>الأمان والثقة</a>
+          <a href="/guide" onClick={() => setMobileOpen(false)} className="text-primary font-bold">دليل المطورين</a>
           <a href="#start" className="rounded-lg bg-primary px-4 py-3 text-center text-primary-foreground">ابدأ الآن</a>
         </nav>
       )}
