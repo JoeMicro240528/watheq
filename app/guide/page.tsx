@@ -1,4 +1,4 @@
-import { ShieldCheck, BookOpen, Key, Link as LinkIcon, FileCheck, Info, AlertTriangle, Terminal, Download } from 'lucide-react'
+import { ShieldCheck, BookOpen, Key, FileCheck, Info, AlertTriangle, Terminal, Download, UserPlus, FilePlus, PenTool, CheckCircle, XCircle, FileText, Database } from 'lucide-react'
 import { CodeBlock } from '@/components/ui/code-block'
 
 export const metadata = {
@@ -6,270 +6,412 @@ export const metadata = {
   description: 'دليل ربط المصدرين لتسجيل الشهادات وتوقيع الوثائق في منصة ثقة',
 }
 
-export default function GuidePage() {
-  return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground selection:bg-accent/30">
-      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-md lg:px-10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <a href="/" className="flex items-center gap-3" aria-label="ثقة - الصفحة الرئيسية">
-            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-              <ShieldCheck className="size-5" strokeWidth={1.8} />
-            </span>
-            <span className="text-lg font-bold tracking-tight">ثقة<span className="text-accent">.</span></span>
-          </a>
-          <div className="flex items-center gap-4">
-            <span className="hidden rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-primary sm:inline-block">
-              مركز المطورين
-            </span>
-          </div>
-        </div>
-      </header>
+// ─── Step 1: Generate Keys and CSR ───────────────────────────────────────────
+const step1Snippets = [
+  {
+    language: 'Bash',
+    code: `# Generate the EC private key
+openssl ecparam -name prime256v1 -genkey -noout -out issuer.key
 
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-10 px-6 py-10 lg:flex-row lg:gap-16 lg:px-10 lg:py-16">
-        
-        {/* Sidebar Navigation */}
-        <aside className="sticky top-28 hidden w-64 shrink-0 lg:block">
-          <div className="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">محتويات الدليل</div>
-          <nav className="flex flex-col gap-1.5 text-sm font-medium">
-            <a href="#intro" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المقدمة والأهداف</a>
-            <a href="#prerequisites" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المتطلبات الأساسية</a>
-            <a href="#base-urls" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الروابط الأساسية (Base URLs)</a>
-            <a href="#step-1" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ١: الحصول على الشهادة</a>
-            <a href="#step-2" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ٢: التسجيل في ثقة</a>
-            <a href="#step-3" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ٣: بدء وثيقة جديدة</a>
-            <a href="#step-4" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ٤: توقيع الوثيقة</a>
-            <a href="#step-5" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ٥: إلغاء وثيقة</a>
-            <a href="#step-6" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">الخطوة ٦: التحقق من وثيقة</a>
-            <a href="#reference" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المراجع والأخطاء</a>
-          </nav>
-        </aside>
+# Generate the CSR
+openssl req -new -key issuer.key -out issuer.csr \\
+  -subj "/CN=YOUR_ISSUER_NAME/O=YOUR_ORGANIZATION/C=YOUR_COUNTRY"
 
-        {/* Main Content */}
-        <main className="w-full min-w-0 flex-1 space-y-16">
-          <div className="space-y-4 border-b border-border pb-10">
-            <h1 className="text-4xl font-black text-primary lg:text-5xl">دليل ربط المصدرين</h1>
-            <p className="text-lg leading-relaxed text-muted-foreground">
-              يرشدك هذا الدليل خلال دورة حياة المصدر الكاملة: تسجيل شهادتك في منصة ثقة، بدء الوثائق، توقيعها باستخدام CAdES-BES، وإلغائها أو التحقق منها عند الحاجة.
-            </p>
-          </div>
+# Format the CSR for JSON embedding (escape newlines)
+CSR_PAYLOAD=$(awk 'NF {sub(/\\r/, ""); printf "%s\\\\n",$0;}' issuer.csr)`
+  },
+  {
+    language: 'Python',
+    code: `from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography import x509
+from cryptography.x509.oid import NameOID
 
-          {/* Intro Section */}
-          <section id="intro" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><BookOpen className="size-6 text-accent" /> لمن هذا الدليل؟</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              للمؤسسات التي تحتاج إلى توقيع الوثائق على منصة ثقة باستخدام شهادات PKI الصادرة عن المرجع المعتمد (EJBCA CA).
-            </p>
-            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-              <h3 className="mb-4 font-bold text-primary">ماذا ستحقق بنهاية الدليل؟</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><CheckIcon /> الحصول على شهادة من EJBCA.</li>
-                <li className="flex items-center gap-2"><CheckIcon /> التسجيل كمصدر معتمد في منصة ثقة.</li>
-                <li className="flex items-center gap-2"><CheckIcon /> بدء، توقيع، إلغاء، والتحقق من الوثائق.</li>
-              </ul>
-            </div>
-          </section>
+# Generate private key
+private_key = ec.generate_private_key(ec.SECP256R1())
+with open("issuer.key", "wb") as f:
+    f.write(private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()
+    ))
 
-          {/* Prerequisites */}
-          <section id="prerequisites" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><Terminal className="size-6 text-accent" /> المتطلبات الأساسية</h2>
-            
-            <h3 className="text-lg font-bold">للمصدرين (Issuers)</h3>
-            <div className="overflow-x-auto rounded-xl border border-border">
-              <table className="w-full text-sm text-right">
-                <thead className="bg-secondary/50 font-bold text-primary">
-                  <tr>
-                    <th className="p-4 border-b border-border">المتطلب</th>
-                    <th className="p-4 border-b border-border">التفاصيل</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  <tr>
-                    <td className="p-4 font-mono">OpenSSL 1.1.1+</td>
-                    <td className="p-4 text-muted-foreground">مطلوب لاستخراج الشهادة من P12 وتوقيع CAdES-BES. تحقق باستخدام <code className="bg-secondary px-1 py-0.5 rounded">openssl version</code>.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">jq</td>
-                    <td className="p-4 text-muted-foreground">يستخدم لبناء وقراءة JSON بأمان (يتجنب حدود طول المتغيرات في سطر الأوامر).</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">curl</td>
-                    <td className="p-4 text-muted-foreground">لإرسال الطلبات لـ Thiqa Hub API.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">uuidgen</td>
-                    <td className="p-4 text-muted-foreground">لإنشاء معرفات الوثائق (Document IDs).</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">متصفح الويب</td>
-                    <td className="p-4 text-muted-foreground">لإكمال عملية التسجيل في EJBCA.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">بيانات التسجيل في EJBCA</td>
-                    <td className="p-4 text-muted-foreground">سيوفر لك مسؤول EJBCA: رابط التسجيل، اسم المستخدم، وكلمة المرور.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+# Generate CSR
+csr = x509.CertificateSigningRequestBuilder().subject_name(x509.Name([
+    x509.NameAttribute(NameOID.COMMON_NAME, u"YOUR_ISSUER_NAME"),
+    x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"YOUR_ORGANIZATION"),
+    x509.NameAttribute(NameOID.COUNTRY_NAME, u"YOUR_COUNTRY"),
+])).sign(private_key, hashes.SHA256())
 
-            <h3 className="mt-8 text-lg font-bold">لمسؤولي EJBCA</h3>
-            <div className="overflow-x-auto rounded-xl border border-border">
-              <table className="w-full text-sm text-right">
-                <thead className="bg-secondary/50 font-bold text-primary">
-                  <tr>
-                    <th className="p-4 border-b border-border">المتطلب</th>
-                    <th className="p-4 border-b border-border">التفاصيل</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  <tr>
-                    <td className="p-4 font-mono">Python 3.6+</td>
-                    <td className="p-4 text-muted-foreground">مطلوب لتشغيل أداة <code className="bg-secondary px-1 py-0.5 rounded">create-issuer.py</code>.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">paramiko</td>
-                    <td className="p-4 text-muted-foreground">مكتبة Python لـ SSH (استخدم <code className="bg-secondary px-1 py-0.5 rounded">pip install paramiko</code>).</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">صلاحيات SSH</td>
-                    <td className="p-4 text-muted-foreground">تتصل الأداة بخادم EJBCA عبر SSH لإدارة الكيانات النهائية (End Entities).</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">ejbca-config.json</td>
-                    <td className="p-4 text-muted-foreground">ملف إعدادات للاتصال بـ EJBCA.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+with open("issuer.csr", "wb") as f:
+    f.write(csr.public_bytes(serialization.Encoding.PEM))
 
-            <div className="mt-6 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-5">
-              <div>
-                <h4 className="font-bold text-primary">تحميل أدوات المصدر (CLI Scripts)</h4>
-                <p className="mt-1 text-sm text-muted-foreground">تحتوي هذه الحزمة على أدوات Python لإدارة المصدرين على EJBCA.</p>
-              </div>
-              <a href="/ejbca-issuer-cli.zip" download className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20">
-                <Download className="size-4" />
-                تحميل الحزمة
-              </a>
-            </div>
-          </section>
+# Format CSR for JSON embedding
+csr_payload = csr.public_bytes(serialization.Encoding.PEM).decode('utf-8').replace('\\r\\n', '\\n').replace('\\n', '')`
+  },
+  {
+    language: 'Java',
+    code: `import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.bouncycastle.util.io.pem.*;
+import java.io.*;
+import java.security.*;
+import java.security.spec.ECGenParameterSpec;
 
-          {/* Base URLs */}
-          <section id="base-urls" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><LinkIcon className="size-6 text-accent" /> الروابط الأساسية (Base URLs)</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              استبدل الروابط المؤقتة أدناه بالعناوين الفعلية لبيئة العمل الخاصة بك.
-            </p>
-            <div className="overflow-x-auto rounded-xl border border-border">
-              <table className="w-full text-sm text-right">
-                <thead className="bg-secondary/50 font-bold text-primary">
-                  <tr>
-                    <th className="p-4 border-b border-border">الخدمة</th>
-                    <th className="p-4 border-b border-border">المتغير المؤقت (Placeholder)</th>
-                    <th className="p-4 border-b border-border">مثال</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  <tr>
-                    <td className="p-4">EJBCA RA Web UI</td>
-                    <td className="p-4 font-mono text-accent">YOUR_EJBCA_RA_URL</td>
-                    <td className="p-4 font-mono text-muted-foreground text-left" dir="ltr">https://ejbca.example.com:8443/ejbca/ra/cas.xhtml</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4">Thiqa Hub API</td>
-                    <td className="p-4 font-mono text-accent">YOUR_HUB_URL</td>
-                    <td className="p-4 font-mono text-muted-foreground text-left" dir="ltr">http://hub.example.com:8081</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+public class GenerateKeys {
+    public static void main(String[] args) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC", "BC");
+        keyGen.initialize(new ECGenParameterSpec("secp256r1"));
+        KeyPair keyPair = keyGen.generateKeyPair();
+        try (PemWriter writer = new PemWriter(new FileWriter("issuer.key"))) {
+            writer.writeObject(new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded()));
+        }
+        X500Name subject = new X500Name("CN=YOUR_ISSUER_NAME,O=YOUR_ORGANIZATION,C=YOUR_COUNTRY");
+        var p10Builder = new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic());
+        var signer = new JcaContentSignerBuilder("SHA256withECDSA").setProvider("BC").build(keyPair.getPrivate());
+        var csr = p10Builder.build(signer);
+        StringWriter csrWriter = new StringWriter();
+        try (PemWriter writer = new PemWriter(csrWriter)) {
+            writer.writeObject(new PemObject("CERTIFICATE REQUEST", csr.getEncoded()));
+        }
+        try (FileWriter fw = new FileWriter("issuer.csr")) { fw.write(csrWriter.toString()); }
+        String csrPayload = csrWriter.toString().replace("\\r\\n", "\\n").replace("\\n", "");
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Security.Cryptography;
+using System.IO;
 
-          {/* Step 1 */}
-          <section id="step-1" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">1</span> الحصول على الشهادة من EJBCA</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              يقوم مسؤول EJBCA بإنشاء كيان نهائي (End Entity) لمؤسستك باستخدام أداة <code className="bg-secondary px-1 py-0.5 rounded text-foreground">create-issuer.py</code>. ثم تقوم بالتسجيل من خلال واجهة الويب لتحميل شهادتك.
-            </p>
+// Generate private key
+using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+File.WriteAllText("issuer.key", ecdsa.ExportECPrivateKeyPem());
 
-            <h3 className="text-lg font-bold text-primary mt-8">١.١ يقوم مسؤول EJBCA بإنشاء الكيان النهائي</h3>
-            <p className="leading-relaxed text-muted-foreground">يشغل المسؤول الأمر التالي:</p>
-            <CodeBlock code={'python3 create-issuer.py create "Your Organization Name" "your_enrollment_password" --country SD'} language="bash" />
-            <p className="leading-relaxed text-muted-foreground mt-4">سيوفر لك المسؤول: رابط التسجيل، اسم المستخدم، وكلمة المرور.</p>
+// Generate CSR
+var request = new CertificateRequest(
+    "CN=YOUR_ISSUER_NAME, O=YOUR_ORGANIZATION, C=YOUR_COUNTRY",
+    ecdsa,
+    HashAlgorithmName.SHA256);
 
-            <h3 className="text-lg font-bold text-primary mt-8">١.٢ التسجيل عبر واجهة الويب</h3>
-            <ul className="list-decimal list-inside space-y-2 text-muted-foreground pr-4">
-              <li>افتح رابط التسجيل في متصفحك.</li>
-              <li>اختر &quot;Use username&quot; كطريقة مصادقة.</li>
-              <li>أدخل اسم المستخدم وكلمة المرور التي قدمها المسؤول.</li>
-              <li>انقر على &quot;Enroll&quot; لإنشاء الشهادة.</li>
-              <li>قم بتنزيل ملف P12 عند مطالبتك بذلك.</li>
-            </ul>
+string csrPem = request.CreateSigningRequestPem();
+File.WriteAllText("issuer.csr", csrPem);
 
-            <h3 className="text-lg font-bold text-primary mt-8">١.٣ استخراج المفتاح الخاص وسلسلة الشهادات</h3>
-            <p className="leading-relaxed text-muted-foreground">
-              يحتوي ملف P12 على مفتاحك الخاص (مطلوب للتوقيع) وسلسلة الشهادات (مطلوبة للتسجيل في ثقة). قم باستخراجهما:
-            </p>
-            <CodeBlock code={`# استخراج المفتاح الخاص (الخطوة ٥)
-openssl pkcs12 -in issuer.p12 -nocerts -out issuer.key \\
-  -passin pass:YOUR_ENROLLMENT_PASSWORD -passout pass:YOUR_ENROLLMENT_PASSWORD
+// Format CSR for JSON embedding
+string csrPayload = csrPem.Replace("\\r\\n", "\\n").Replace("\\n", "");`
+  }
+]
 
-# استخراج سلسلة الشهادات (الخطوة ٢)
-openssl pkcs12 -in issuer.p12 -nokeys -out issuer.pem \\
-  -passin pass:YOUR_ENROLLMENT_PASSWORD`} language="bash" />
+// ─── Step 2: Enroll with EJBCA ───────────────────────────────────────────────
+const step2Snippets = [
+  {
+    language: 'Bash',
+    code: `curl -k -X POST "YOUR_EJBCA_URL/ejbca/ejbca-rest-api/v1/certificate/pkcs10enroll" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json" \\
+  --cert YOUR_EJBCA_ADMIN_CERT \\
+  --key YOUR_EJBCA_ADMIN_KEY \\
+  -d "{
+    \\"certificate_request\\": \\"$CSR_PAYLOAD\\",
+    \\"certificate_profile_name\\": \\"YOUR_CERT_PROFILE\\",
+    \\"end_entity_profile_name\\": \\"YOUR_CERT_PROFILE\\",
+    \\"certificate_authority_name\\": \\"YOUR_CA_NAME\\",
+    \\"username\\": \\"YOUR_USERNAME\\",
+    \\"password\\": \\"YOUR_PASSWORD\\",
+    \\"response_format\\": \\"PKCS7\\"
+  }" > response.json`
+  },
+  {
+    language: 'Python',
+    code: `import requests, json
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.hazmat.backends import default_backend
 
-            <Callout type="warning">
-              احفظ ملف <strong>issuer.key</strong> بشكل آمن ولا تشاركه أبداً. يُستخدم هذا المفتاح لتوقيع الوثائق نيابة عنك.
-            </Callout>
-          </section>
+with open("issuer.csr", "r") as f:
+    csr_pem = f.read()
 
-          {/* Step 2 */}
-          <section id="step-2" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">2</span> التسجيل في منصة ثقة</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              أرسل سلسلة الشهادات المستخرجة إلى منصة ثقة (Thiqa Hub). ستقوم المنصة بالتحقق من السلسلة مقابل الجذر الحكومي المعتمد، والتحقق من حالة OCSP، وتسجيلك كموقع معتمد.
-            </p>
-            <CodeBlock code={`CERT_PEM=$(awk 'NF {sub(/\\r/, ""); printf "%s\\\\n",$0;}' issuer.pem)
+# Extract cert and key from P12 for mTLS
+p12_data = open("YOUR_EJBCA_ADMIN_P12", "rb").read()
+key, cert, chain = pkcs12.load_key_and_certificates(p12_data, b"YOUR_P12_PASSWORD", default_backend())
+with open("admin.crt", "wb") as f:
+    f.write(cert.public_bytes(serialization.Encoding.PEM))
+with open("admin.key", "wb") as f:
+    f.write(key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()
+    ))
+
+payload = {
+    "certificate_request": csr_pem,
+    "certificate_profile_name": "YOUR_CERT_PROFILE",
+    "end_entity_profile_name": "YOUR_CERT_PROFILE",
+    "certificate_authority_name": "YOUR_CA_NAME",
+    "username": "YOUR_USERNAME",
+    "password": "YOUR_PASSWORD",
+    "response_format": "PKCS7"
+}
+
+response = requests.post(
+    "YOUR_EJBCA_URL/ejbca/ejbca-rest-api/v1/certificate/pkcs10enroll",
+    json=payload, cert=("admin.crt", "admin.key"), verify=False
+)
+with open("response.json", "w") as f:
+    json.dump(response.json(), f)`
+  },
+  {
+    language: 'Java',
+    code: `import javax.net.ssl.*;
+import java.io.*;
+import java.net.*;
+import java.nio.file.*;
+import java.security.*;
+
+public class EnrollEjbca {
+    public static void main(String[] args) throws Exception {
+        String csrPem = Files.readString(Path.of("issuer.csr"));
+        String payload = String.format("""
+            {
+              "certificate_request": "%s",
+              "certificate_profile_name": "YOUR_CERT_PROFILE",
+              "end_entity_profile_name": "YOUR_CERT_PROFILE",
+              "certificate_authority_name": "YOUR_CA_NAME",
+              "username": "YOUR_USERNAME",
+              "password": "YOUR_PASSWORD",
+              "response_format": "PKCS7"
+            }
+            """, csrPem.replace("\\n", "\\\\n"));
+
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        keyStore.load(new FileInputStream("YOUR_EJBCA_ADMIN_P12"), "YOUR_P12_PASSWORD".toCharArray());
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(keyStore, "YOUR_P12_PASSWORD".toCharArray());
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(kmf.getKeyManagers(), null, new SecureRandom());
+
+        HttpsURLConnection conn = (HttpsURLConnection) new URL(
+            "YOUR_EJBCA_URL/ejbca/ejbca-rest-api/v1/certificate/pkcs10enroll").openConnection();
+        conn.setSSLSocketFactory(ctx.getSocketFactory());
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        conn.getOutputStream().write(payload.getBytes());
+        Files.writeString(Path.of("response.json"), new String(conn.getInputStream().readAllBytes()));
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Text;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using System.IO;
+
+string csrPem = File.ReadAllText("issuer.csr");
+string payload = $$"""
+{
+  "certificate_request": "{{csrPem.Replace("\\n", "\\\\n")}}",
+  "certificate_profile_name": "YOUR_CERT_PROFILE",
+  "end_entity_profile_name": "YOUR_CERT_PROFILE",
+  "certificate_authority_name": "YOUR_CA_NAME",
+  "username": "YOUR_USERNAME",
+  "password": "YOUR_PASSWORD",
+  "response_format": "PKCS7"
+}
+""";
+
+var handler = new HttpClientHandler();
+var adminCert = new X509Certificate2("YOUR_EJBCA_ADMIN_P12", "YOUR_P12_PASSWORD");
+handler.ClientCertificates.Add(adminCert);
+var client = new HttpClient(handler);
+var response = await client.PostAsync(
+    "YOUR_EJBCA_URL/ejbca/ejbca-rest-api/v1/certificate/pkcs10enroll",
+    new StringContent(payload, Encoding.UTF8, "application/json"));
+File.WriteAllText("response.json", await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Step 2b: Extract certs from response ────────────────────────────────────
+const step2bSnippets = [
+  {
+    language: 'Bash',
+    code: `jq -r '.certificate' response.json | base64 -d | \\
+  openssl pkcs7 -inform DER -print_certs -outform PEM > issuer.pem
+
+# Optionally save the serial number for reference
+jq -r '.serial_number' response.json > serial.txt`
+  },
+  {
+    language: 'Python',
+    code: `import json, base64
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import pkcs7
+
+with open("response.json") as f:
+    data = json.load(f)
+
+cert_bytes = base64.b64decode(data["certificate"])
+certificates = pkcs7.load_der_pkcs7_certificates(cert_bytes)
+
+with open("issuer.pem", "wb") as f:
+    for cert in certificates:
+        f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+with open("serial.txt", "w") as f:
+    f.write(data["serial_number"])`
+  },
+  {
+    language: 'Java',
+    code: `import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.util.Store;
+import org.bouncycastle.util.io.pem.*;
+import java.io.FileWriter;
+import java.nio.file.*;
+import java.util.Base64;
+import java.util.regex.*;
+
+public class ExtractCerts {
+    public static void main(String[] args) throws Exception {
+        String responseBody = Files.readString(Path.of("response.json"));
+        Matcher m = Pattern.compile("\\"certificate\\":\\"([^\\"]+)\\"").matcher(responseBody);
+        if (m.find()) {
+            byte[] pkcs7Der = Base64.getDecoder().decode(m.group(1));
+            CMSSignedData cms = new CMSSignedData(pkcs7Der);
+            Store<X509CertificateHolder> certStore = cms.getCertificates();
+            try (PemWriter writer = new PemWriter(new FileWriter("issuer.pem"))) {
+                for (X509CertificateHolder cert : certStore.getMatches(null)) {
+                    writer.writeObject(new PemObject("CERTIFICATE", cert.getEncoded()));
+                }
+            }
+        }
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Text.RegularExpressions;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
+string responseBody = File.ReadAllText("response.json");
+var match = Regex.Match(responseBody, "\\"certificate\\":\\"([^\\"]+)\\"");
+if (match.Success) {
+    byte[] pkcs7Der = Convert.FromBase64String(match.Groups[1].Value);
+    var signedCms = new SignedCms();
+    signedCms.Decode(pkcs7Der);
+    var pemBuilder = new StringBuilder();
+    foreach (var cert in signedCms.Certificates)
+        pemBuilder.AppendLine(cert.ExportCertificatePem());
+    File.WriteAllText("issuer.pem", pemBuilder.ToString());
+}
+var serialMatch = Regex.Match(responseBody, "\\"serial_number\\":\\"([^\\"]+)\\"");
+if (serialMatch.Success)
+    File.WriteAllText("serial.txt", serialMatch.Groups[1].Value);`
+  }
+]
+
+// ─── Step 3: Register with Thiqa Hub ─────────────────────────────────────────
+const step3Snippets = [
+  {
+    language: 'Bash',
+    code: `CERT_PEM=$(awk 'NF {sub(/\\r/, ""); printf "%s\\\\n",$0;}' issuer.pem)
 
 curl -X POST "YOUR_HUB_URL/api/certs/enroll" \\
   -H "Content-Type: application/json" \\
-  -d "{ \\"certPem\\": \\"$CERT_PEM\\" }"`} language="bash" />
+  -d "{ \\"certPem\\": \\"$CERT_PEM\\" }"`
+  },
+  {
+    language: 'Python',
+    code: `import requests
 
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
-              <CodeBlock code={`{
-  "issuerId": 1,
-  "serial": "abc123...",
-  "validFrom": "2026-01-01T00:00:00Z",
-  "validUntil": "2027-01-01T00:00:00Z"
-}`} language="json" className="my-0" />
-            </div>
+with open("issuer.pem", "r") as f:
+    cert_pem = "".join([line.strip() + "\\n" for line in f if line.strip()])
 
-            <Callout type="important">
-              يجب أن يحتوي حقل <code>certPem</code> على سلسلة الشهادات الكاملة (شهادة النهاية + شهادات CA الوسيطة). إرسال شهادة النهاية فقط سيؤدي إلى خطأ في التحقق من السلسلة.
-            </Callout>
-          </section>
+response = requests.post(
+    "YOUR_HUB_URL/api/certs/enroll",
+    json={"certPem": cert_pem}
+)
+print(response.status_code, response.json())`
+  },
+  {
+    language: 'Java',
+    code: `import java.net.http.*;
+import java.net.URI;
+import java.nio.file.*;
 
-          {/* Step 3 */}
-          <section id="step-3" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">3</span> بدء وثيقة جديدة</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              قم بإنشاء معرف فريد للوثيقة (Document ID)، ثم اطبعه كرمز استجابة سريعة (QR Code) على وثيقتك، ثم احسب الـ Hash وسجله في منصة ثقة.
-            </p>
+public class Enroll {
+    public static void main(String[] args) throws Exception {
+        String certPem = Files.readString(Path.of("issuer.pem"))
+            .replaceAll("(?m)^\\\\s+$", "").replaceAll("\\\\r\\\\n?", "\\\\n");
+        String json = "{\\"certPem\\":\\"" + certPem.replace("\\n", "\\\\n") + "\\"}";
 
-            <h3 className="text-lg font-bold text-primary mt-8">٣.١ إنشاء المعرف وختم الوثيقة</h3>
-            <CodeBlock code={`DOC_ID=$(uuidgen)`} language="bash" />
-            <p className="leading-relaxed text-muted-foreground">
-              قم بختم رمز QR يحتوي على <code>$DOC_ID</code> على ملف الـ PDF قبل المتابعة. يجب تضمين الرمز في هذه المرحلة لأن الـ Hash يُحسب بناءً على المحتوى النهائي للوثيقة.
-            </p>
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("YOUR_HUB_URL/api/certs/enroll"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+        System.out.println(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Net.Http.Json;
+using System.IO;
+using System.Text.RegularExpressions;
 
-            <h3 className="text-lg font-bold text-primary mt-8">٣.٢ حساب الـ Hash والتسجيل</h3>
-            <CodeBlock code={`# حساب SHA-256 للوثيقة المختومة
-DOC_HASH=$(sha256sum document.pdf | awk '{print $1}')
+var certPem = Regex.Replace(File.ReadAllText("issuer.pem"), @"(?m)^\\s+$[\\r\\n]*", "");
+certPem = certPem.Replace("\\r", "");
 
-# ترميز الوثيقة بـ Base64
+using var client = new HttpClient();
+var response = await client.PostAsJsonAsync("YOUR_HUB_URL/api/certs/enroll", new { certPem });
+Console.WriteLine(await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Step 4.1: Generate Doc ID ───────────────────────────────────────────────
+const step4aSnippets = [
+  { language: 'Bash', code: `DOC_ID=$(uuidgen)` },
+  {
+    language: 'Python',
+    code: `import uuid
+doc_id = str(uuid.uuid4())
+print(f"Document ID: {doc_id}")
+# Stamp a QR code containing doc_id onto your PDF before proceeding.`
+  },
+  {
+    language: 'Java',
+    code: `import java.util.UUID;
+public class GenerateDocId {
+    public static void main(String[] args) {
+        UUID docId = UUID.randomUUID();
+        System.out.println("Document ID: " + docId);
+        // Stamp a QR code containing docId onto your PDF before proceeding.
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `string docId = Guid.NewGuid().ToString();
+Console.WriteLine($"Document ID: {docId}");
+// Stamp a QR code containing docId onto your PDF before proceeding.`
+  }
+]
+
+// ─── Step 4.2: Hash and register ─────────────────────────────────────────────
+const step4bSnippets = [
+  {
+    language: 'Bash',
+    code: `DOC_HASH=$(sha256sum document.pdf | awk '{print $1}')
 RENDERING_B64=$(base64 -w 0 document.pdf)
 
-# بناء حمولة JSON بأمان باستخدام jq
 jq -n \\
   --arg docId "$DOC_ID" \\
   --arg docHash "$DOC_HASH" \\
@@ -284,91 +426,618 @@ jq -n \\
 
 curl -X POST "YOUR_HUB_URL/api/documents/initiate" \\
   -H "Content-Type: application/json" \\
-  -d @initiate_payload.json`} language="bash" />
+  -d @initiate_payload.json`
+  },
+  {
+    language: 'Python',
+    code: `import hashlib, base64, uuid, requests
 
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
-              <CodeBlock code={`{
-  "docId": "550e8400-e29b-41d4-a716-446655440000"
-}`} language="json" className="my-0" />
-            </div>
+with open("document.pdf", "rb") as f:
+    doc_bytes = f.read()
 
-            <Callout type="info">
-              تقوم المنصة بحساب الـ Hash على بايتات الوثيقة الخام (بعد فك تشفير Base64). يجب أن يتطابق <code>docHash</code> الذي ترسله مع ما تحسبه المنصة. استخدام <code>sha256sum</code> على ملف PDF الخام ينتج الـ Hash الصحيح.
-            </Callout>
-          </section>
+doc_hash = hashlib.sha256(doc_bytes).hexdigest()
+rendering_b64 = base64.b64encode(doc_bytes).decode("utf-8")
 
-          {/* Step 4 */}
-          <section id="step-4" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">4</span> توقيع الوثيقة (CAdES-BES)</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              وقع الـ Hash للوثيقة باستخدام توقيع CAdES-BES وأرسله إلى منصة ثقة.
-            </p>
+payload = {
+    "docId": str(uuid.uuid4()),
+    "docHash": doc_hash,
+    "hashAlgorithm": "SHA-256",
+    "renderingBase64": rendering_b64,
+    "minRequiredSignatures": 1
+}
+response = requests.post("YOUR_HUB_URL/api/documents/initiate", json=payload)
+print(response.json())`
+  },
+  {
+    language: 'Java',
+    code: `import java.nio.file.*;
+import java.security.MessageDigest;
+import java.util.*;
+import java.net.http.*;
+import java.net.URI;
 
-            <h3 className="text-lg font-bold text-primary mt-8">٤.١ تحويل الـ Hash وتوقيعه</h3>
-            <CodeBlock code={`# تحويل الـ Hash النصي (Hex) إلى بايتات ثنائية (Binary)
+public class InitiateDocument {
+    public static void main(String[] args) throws Exception {
+        byte[] docBytes = Files.readAllBytes(Path.of("document.pdf"));
+        byte[] hash = MessageDigest.getInstance("SHA-256").digest(docBytes);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hash) sb.append(String.format("%02x", b));
+        String docHash = sb.toString();
+        String renderingB64 = Base64.getEncoder().encodeToString(docBytes);
+        String docId = UUID.randomUUID().toString();
+        String json = String.format("""
+            {"docId":"%s","docHash":"%s","hashAlgorithm":"SHA-256","renderingBase64":"%s","minRequiredSignatures":1}
+            """, docId, docHash, renderingB64);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("YOUR_HUB_URL/api/documents/initiate"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        System.out.println(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
+byte[] docBytes = await File.ReadAllBytesAsync("document.pdf");
+string docHash = Convert.ToHexString(SHA256.HashData(docBytes)).ToLower();
+string renderingB64 = Convert.ToBase64String(docBytes);
+
+var payload = new { docId = Guid.NewGuid().ToString(), docHash, hashAlgorithm = "SHA-256", renderingBase64 = renderingB64, minRequiredSignatures = 1 };
+var client = new HttpClient();
+var response = await client.PostAsync(
+    "YOUR_HUB_URL/api/documents/initiate",
+    new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
+Console.WriteLine(await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Step 5.1: Sign ──────────────────────────────────────────────────────────
+const step5aSnippets = [
+  {
+    language: 'Bash',
+    code: `# Convert hex hash to 32 binary bytes
 echo -n "$DOC_HASH" | xxd -r -p > hash.bin
 
-# التوقيع باستخدام CAdES-BES
-# -nodetach: يدمج الـ Hash داخل هيكل CMS (مطلوب)
-# -cades: يتضمن السمة signing-certificate-v2 (مطلوب)
-# -binary: يمنع اقتطاع البايتات الصفرية (حيوي جداً)
+# Sign with CAdES-BES (-binary flag is MANDATORY)
 openssl cms -sign -in hash.bin -outform DER -out signature.der \\
-  -signer issuer.pem -inkey issuer.key -nodetach -md sha256 -cades -binary`} language="bash" />
+  -signer issuer.pem -inkey issuer.key -nodetach -md sha256 -cades -binary`
+  },
+  {
+    language: 'Python',
+    code: `from endesive.cms import sign
+from cryptography.hazmat.primitives import serialization
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
-            <Callout type="warning">
-              مُعامل <code>-binary</code> إلزامي. بدونه، قد يقتطع OpenSSL الإدخال عند البايتات الصفرية، مما ينتج توقيعاً سترفضه المنصة (عدم تطابق الـ Hash).
-            </Callout>
+with open("issuer.key", "rb") as f:
+    key = serialization.load_pem_private_key(f.read(), password=None, backend=default_backend())
 
-            <h3 className="text-lg font-bold text-primary mt-8">٤.٢ إرسال التوقيع</h3>
-            <CodeBlock code={`SIG_B64=$(base64 -w 0 signature.der)
+with open("issuer.pem", "rb") as f:
+    pem_data = f.read()
+
+certs = [x509.load_pem_x509_certificate(c + b'-----END CERTIFICATE-----\\n', default_backend())
+         for c in pem_data.split(b'-----END CERTIFICATE-----') if c.strip()]
+
+hash_bin = bytes.fromhex(doc_hash)
+sig = sign(hash_bin, key, certs[0], certs[1:], "sha256", attrs=True)
+
+with open("signature.der", "wb") as f:
+    f.write(sig)`
+  },
+  {
+    language: 'Java',
+    code: `// Uses BouncyCastle. Full CAdES-BES implementation with SigningCertificateV2 attribute.
+import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.operator.jcajce.*;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.*;
+import java.nio.file.*;
+import java.util.*;
+
+public class SignHash {
+    public static void main(String[] args) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        String docHash = "..."; // From Step 4.2
+        byte[] hashBin = hexToBytes(docHash);
+        // Load key and certs from issuer.key / issuer.pem...
+        CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
+        // Add signer + CAdES-BES SigningCertificateV2 attribute...
+        CMSSignedData sigData = gen.generate(new CMSProcessableByteArray(hashBin), true);
+        Files.write(Path.of("signature.der"), sigData.getEncoded());
+    }
+    static byte[] hexToBytes(String hex) {
+        byte[] b = new byte[hex.length() / 2];
+        for (int i = 0; i < b.length; i++) b[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+        return b;
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Security.Cryptography;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
+using System.Formats.Asn1;
+
+byte[] hashBin = Enumerable.Range(0, docHash.Length / 2)
+    .Select(x => Convert.ToByte(docHash.Substring(x * 2, 2), 16)).ToArray();
+
+using var ecdsa = ECDsa.Create();
+ecdsa.ImportFromPem(File.ReadAllText("issuer.key"));
+
+var certs = new X509Certificate2Collection();
+certs.ImportFromPem(File.ReadAllText("issuer.pem"));
+var leafCert = certs[0];
+var certWithKey = leafCert.CopyWithPrivateKey(ecdsa);
+
+// Build CAdES-BES SigningCertificateV2 attribute
+byte[] certHash = SHA256.HashData(leafCert.RawData);
+var writer = new AsnWriter(AsnEncodingRules.DER);
+writer.PushSequence(); writer.PushSequence(); writer.PushSequence();
+writer.WriteOctetString(certHash);
+writer.PopSequence(); writer.PopSequence(); writer.PopSequence();
+var signingCertAttr = new Pkcs9AttributeObject("1.2.840.113549.1.9.16.2.47", writer.Encode());
+
+var signedCms = new SignedCms(new ContentInfo(hashBin), detached: false);
+var signer = new CmsSigner(SubjectIdentifierType.IssuerAndSerialNumber, certWithKey);
+signer.SignedAttributes.Add(signingCertAttr);
+foreach (var cert in certs) signer.Certificates.Add(cert);
+signedCms.ComputeSignature(signer);
+File.WriteAllBytes("signature.der", signedCms.Encode());`
+  }
+]
+
+// ─── Step 5.2: Submit signature ───────────────────────────────────────────────
+const step5bSnippets = [
+  {
+    language: 'Bash',
+    code: `SIG_B64=$(base64 -w 0 signature.der)
 
 curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/signatures" \\
   -H "Content-Type: application/json" \\
-  -d "{ \\"cadesSignatureBase64\\": \\"$SIG_B64\\" }"`} language="bash" />
+  -d "{ \\"cadesSignatureBase64\\": \\"$SIG_B64\\" }"`
+  },
+  {
+    language: 'Python',
+    code: `import requests, base64
 
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
-              <CodeBlock code={`{
-  "signatureId": "660e8400-e29b-41d4-a716-446655440001",
-  "status": "VALID"
-}`} language="json" className="my-0" />
-            </div>
-          </section>
+with open("signature.der", "rb") as f:
+    sig_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-          {/* Step 5 */}
-          <section id="step-5" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">5</span> إلغاء وثيقة</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              لإلغاء وثيقة سابقة، استدعِ نقطة النهاية الخاصة بالإلغاء. الإلغاء إجراء دائم - يجب إنشاء وثيقة مصححة كوثيقة جديدة.
-            </p>
-            <CodeBlock code={`curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/revoke" \\
+response = requests.post(
+    f"YOUR_HUB_URL/api/documents/{doc_id}/signatures",
+    json={"cadesSignatureBase64": sig_b64}
+)
+print(response.json())`
+  },
+  {
+    language: 'Java',
+    code: `import java.nio.file.*;
+import java.util.Base64;
+import java.net.http.*;
+import java.net.URI;
+
+public class SubmitSignature {
+    public static void main(String[] args) throws Exception {
+        String sigB64 = Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of("signature.der")));
+        String json = "{\\"cadesSignatureBase64\\":\\"" + sigB64 + "\\"}";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("YOUR_HUB_URL/api/documents/" + docId + "/signatures"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        System.out.println(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Net.Http;
+
+string sigB64 = Convert.ToBase64String(await File.ReadAllBytesAsync("signature.der"));
+using var client = new HttpClient();
+var response = await client.PostAsJsonAsync(
+    $"YOUR_HUB_URL/api/documents/{docId}/signatures",
+    new { cadesSignatureBase64 = sigB64 });
+Console.WriteLine(await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Step 6: Revoke ───────────────────────────────────────────────────────────
+const step6Snippets = [
+  {
+    language: 'Bash',
+    code: `curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/revoke" \\
   -H "Content-Type: application/json" \\
   -d '{
     "reason": "Administrative cancellation",
     "revokedBy": "YOUR_ISSUER_NAME"
-  }'`} language="bash" />
-            
-            <div className="rounded-xl border border-border bg-card p-6 mt-4">
-              <p className="mb-4 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 200 OK):</p>
-              <CodeBlock code={`{
-  "revoked": true
-}`} language="json" className="my-0" />
+  }'`
+  },
+  {
+    language: 'Python',
+    code: `import requests
+
+response = requests.post(
+    f"YOUR_HUB_URL/api/documents/{doc_id}/revoke",
+    json={"reason": "Administrative cancellation", "revokedBy": "YOUR_ISSUER_NAME"}
+)
+print(response.json())`
+  },
+  {
+    language: 'Java',
+    code: `import java.net.http.*;
+import java.net.URI;
+
+public class RevokeDocument {
+    public static void main(String[] args) throws Exception {
+        String docId = "YOUR_DOC_ID";
+        String json = """
+            {"reason":"Administrative cancellation","revokedBy":"YOUR_ISSUER_NAME"}
+            """;
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("YOUR_HUB_URL/api/documents/" + docId + "/revoke"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        System.out.println(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Net.Http;
+using System.Text.Json;
+
+string docId = "YOUR_DOC_ID";
+var payload = new { reason = "Administrative cancellation", revokedBy = "YOUR_ISSUER_NAME" };
+using var client = new HttpClient();
+var response = await client.PostAsync(
+    $"YOUR_HUB_URL/api/documents/{docId}/revoke",
+    new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json"));
+Console.WriteLine(await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Step 7: Verify ───────────────────────────────────────────────────────────
+const step7Snippets = [
+  {
+    language: 'Bash',
+    code: `curl -X POST "YOUR_HUB_URL/api/documents/verify" \\
+  -H "Content-Type: application/json" \\
+  -d "{ \\"docId\\": \\"$DOC_ID\\" }"`
+  },
+  {
+    language: 'Python',
+    code: `import requests
+
+response = requests.post(
+    "YOUR_HUB_URL/api/documents/verify",
+    json={"docId": doc_id}
+)
+print(response.json())`
+  },
+  {
+    language: 'Java',
+    code: `import java.net.http.*;
+import java.net.URI;
+
+public class VerifyDocument {
+    public static void main(String[] args) throws Exception {
+        String json = "{\\"docId\\":\\"YOUR_DOC_ID\\"}";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("YOUR_HUB_URL/api/documents/verify"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        System.out.println(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+    }
+}`
+  },
+  {
+    language: 'C#',
+    code: `using System.Net.Http.Json;
+
+using var client = new HttpClient();
+var response = await client.PostAsJsonAsync("YOUR_HUB_URL/api/documents/verify", new { docId });
+Console.WriteLine(await response.Content.ReadAsStringAsync());`
+  }
+]
+
+// ─── Reusable UI Components ───────────────────────────────────────────────────
+function Callout({ type, children }: { type: 'info' | 'warning' | 'tip', children: React.ReactNode }) {
+  const styles = {
+    info: 'border-blue-500/30 bg-blue-500/5 text-blue-700 dark:text-blue-400',
+    warning: 'border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-400',
+    tip: 'border-accent/30 bg-accent/5 text-accent',
+  }
+  const icons = {
+    info: <Info className="size-4 shrink-0 mt-0.5" />,
+    warning: <AlertTriangle className="size-4 shrink-0 mt-0.5" />,
+    tip: <Terminal className="size-4 shrink-0 mt-0.5" />,
+  }
+  return (
+    <div className={`my-6 flex items-start gap-4 rounded-xl border p-4 ${styles[type]}`}>
+      {icons[type]}
+      <div className="text-sm leading-relaxed">{children}</div>
+    </div>
+  )
+}
+
+function StepSection({ id, number, icon: Icon, title, children }: { id: string, number: string, icon: React.ElementType, title: string, children: React.ReactNode }) {
+  return (
+    <section id={id} className="scroll-mt-28">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-white shadow-lg">
+          <Icon className="size-6" />
+        </div>
+        <div>
+          <div className="text-xs font-bold text-muted-foreground">الخطوة {number}</div>
+          <h2 className="text-2xl font-black text-primary">{title}</h2>
+        </div>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </section>
+  )
+}
+
+export default function GuidePage() {
+  return (
+    <div dir="rtl" className="min-h-screen bg-background text-foreground selection:bg-accent/30">
+      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-md lg:px-10">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <a href="/" className="flex items-center" aria-label="ثقة - الصفحة الرئيسية">
+            <img src="/icon.png" alt="شعار ثقة" className="h-20 w-auto object-contain" />
+          </a>
+          <div className="flex items-center gap-4">
+            <a href="/flow" className="inline-flex rounded-full bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/20 sm:px-4 sm:text-sm">
+              مخطط التكامل
+            </a>
+            <span className="hidden rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-primary sm:inline-block">
+              مركز المطورين
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex max-w-7xl flex-col items-start gap-10 px-6 py-10 lg:flex-row lg:gap-16 lg:px-10 lg:py-16">
+
+        {/* Sidebar Navigation */}
+        <aside className="sticky top-28 hidden w-64 shrink-0 lg:block">
+          <div className="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">محتويات الدليل</div>
+          <nav className="flex flex-col gap-1.5 text-sm font-medium">
+            <a href="#intro" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المقدمة والأهداف</a>
+            <a href="#prerequisites" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المتطلبات الأساسية</a>
+            <a href="#step-1" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">١. إنشاء المفاتيح وCSR</a>
+            <a href="#step-2" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٢. التسجيل في EJBCA</a>
+            <a href="#step-3" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٣. التسجيل في منصة ثقة</a>
+            <a href="#step-4" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٤. بدء وثيقة جديدة</a>
+            <a href="#step-5" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٥. توقيع الوثيقة</a>
+            <a href="#step-6" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٦. إلغاء الوثيقة</a>
+            <a href="#step-7" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">٧. التحقق من الوثيقة</a>
+            <a href="#reference" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">المرجع السريع</a>
+          </nav>
+          <a href="/public/ejbca-issuer-cli.zip" download className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
+            <Download className="size-4" />
+            تحميل CLI Scripts
+          </a>
+        </aside>
+
+        {/* Main Content */}
+        <main className="min-w-0 flex-1 space-y-16">
+
+          {/* Intro */}
+          <section id="intro" className="scroll-mt-28">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent text-white shadow-lg">
+                <BookOpen className="size-6" />
+              </div>
+              <h1 className="text-3xl font-black text-primary">دليل ربط المصدرين — Thiqa Issuer Integration Guide</h1>
+            </div>
+            <p className="leading-relaxed text-muted-foreground">
+              يشرح هذا الدليل دورة حياة المصدر بالكامل: توليد مفاتيح التشفير، الحصول على شهادة من EJBCA، التسجيل في منصة ثقة، بدء وثيقة، توقيعها، وإلغائها أو التحقق منها عند الحاجة.
+            </p>
+            <div className="mt-6 rounded-xl border border-border bg-card p-5">
+              <p className="mb-3 text-sm font-bold text-muted-foreground">ما ستنجزه في هذا الدليل:</p>
+              <ul className="space-y-2 text-sm text-foreground">
+                {[
+                  'توليد زوج مفاتيح تشفير EC وطلب توقيع شهادة (CSR)',
+                  'الحصول على شهادة من EJBCA عبر REST API',
+                  'التسجيل كمصدر معتمد في منصة ثقة',
+                  'بدء وثيقة وحساب بصمتها الرقمية (Hash)',
+                  'توقيع الوثيقة بـ CAdES-BES وإرسال التوقيع',
+                  'إلغاء وثيقة أو التحقق من صحتها'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-[10px] font-black text-accent">{i + 1}</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 
-          {/* Step 6 */}
-          <section id="step-6" className="space-y-6 scroll-mt-28">
-            <h2 className="flex items-center gap-2 text-2xl font-bold text-primary"><span className="grid size-8 place-items-center rounded-full bg-accent/20 text-accent font-mono text-sm">6</span> التحقق من وثيقة</h2>
+          {/* Prerequisites */}
+          <section id="prerequisites" className="scroll-mt-28">
+            <h2 className="mb-6 text-2xl font-black text-primary">المتطلبات الأساسية</h2>
+            <div className="overflow-hidden rounded-xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/50">
+                  <tr>
+                    <th className="px-4 py-3 text-right font-bold text-primary">المتطلب</th>
+                    <th className="px-4 py-3 text-right font-bold text-primary">التفاصيل</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {[
+                    ['OpenSSL 1.1.1+', 'مطلوب للتوقيع بـ CAdES-BES (الراية -cades). تحقق بـ openssl version'],
+                    ['jq', 'لبناء وتحليل JSON بأمان. ثبّته عبر مدير الحزم'],
+                    ['curl', 'لجميع طلبات API'],
+                    ['بيانات EJBCA Admin', 'شهادة عميل ومفتاح خاص للمصادقة (mTLS) على EJBCA REST API'],
+                    ['أسماء Profile في EJBCA', 'اسم Certificate Profile واسم End Entity Profile واسم CA'],
+                    ['الوصول للشبكة', 'اتصال بـ EJBCA (منفذ 8443) ومنصة ثقة (منفذ 8081)'],
+                  ].map(([req, detail], i) => (
+                    <tr key={i} className="bg-card">
+                      <td className="px-4 py-3 font-mono text-xs text-primary">{req}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{detail}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 rounded-xl border border-border bg-card p-5">
+              <p className="mb-3 text-sm font-bold text-muted-foreground">عناوين الخدمات (Base URLs)</p>
+              <table className="w-full text-sm">
+                <thead><tr>
+                  <th className="py-2 text-right font-bold text-primary">الخدمة</th>
+                  <th className="py-2 text-right font-bold text-primary">القيمة الافتراضية</th>
+                  <th className="py-2 text-right font-bold text-primary">مثال</th>
+                </tr></thead>
+                <tbody className="divide-y divide-border">
+                  <tr><td className="py-2 font-mono text-xs text-primary">EJBCA REST API</td><td className="py-2 text-muted-foreground">YOUR_EJBCA_URL</td><td className="py-2 font-mono text-xs text-muted-foreground">https://ejbca.example.com:8443</td></tr>
+                  <tr><td className="py-2 font-mono text-xs text-primary">Thiqa Hub API</td><td className="py-2 text-muted-foreground">YOUR_HUB_URL</td><td className="py-2 font-mono text-xs text-muted-foreground">http://hub.example.com:8081</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Step 1 */}
+          <StepSection id="step-1" number="١" icon={Key} title="إنشاء المفاتيح وطلب التوقيع (CSR)">
             <p className="leading-relaxed text-muted-foreground">
-              يمكنك التحقق من صحة الوثيقة في أي وقت. تعيد المنصة التحقق من جميع التوقيعات المخزنة مقابل الـ Hash وتُرجع الحالة الحالية.
+              أنشئ زوج مفاتيح Elliptic Curve (EC) على منحنى P-256 وطلب توقيع الشهادة (CSR).
             </p>
-            <CodeBlock code={`curl -X POST "YOUR_HUB_URL/api/documents/verify" \\
-  -H "Content-Type: application/json" \\
-  -d "{ \\"docId\\": \\"$DOC_ID\\" }"`} language="bash" />
-            
-            <div className="rounded-xl border border-border bg-card p-6 mt-4">
-              <p className="mb-4 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 200 OK):</p>
+            <CodeBlock snippets={step1Snippets} />
+            <Callout type="info">
+              استبدل <code>YOUR_ISSUER_NAME</code> باسم المصدر (مثل: Ministry of Health)، و<code>YOUR_ORGANIZATION</code> باسم المنظمة، و<code>YOUR_COUNTRY</code> برمز الدولة المكون من حرفين (مثل: SD).
+            </Callout>
+            <div className="rounded-xl border border-border bg-card p-5 text-sm">
+              <p className="mb-2 font-bold text-muted-foreground">ملفات الإخراج:</p>
+              <ul className="space-y-1 text-muted-foreground">
+                <li><code className="font-mono text-primary">issuer.key</code> — مفتاحك الخاص. احتفظ به بأمان ولا تشاركه.</li>
+                <li><code className="font-mono text-primary">issuer.csr</code> — طلب التوقيع المُرسَل إلى EJBCA.</li>
+              </ul>
+            </div>
+          </StepSection>
+
+          {/* Step 2 */}
+          <StepSection id="step-2" number="٢" icon={ShieldCheck} title="التسجيل في EJBCA">
+            <p className="leading-relaxed text-muted-foreground">
+              أرسل الـ CSR إلى EJBCA REST API للحصول على شهادة موقّعة وسلسلة CA الخاصة بها.
+            </p>
+            <CodeBlock snippets={step2Snippets} />
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 200 OK):</p>
+              <CodeBlock code={`{
+  "certificate": "MIIHJzCCBQ...",
+  "serial_number": "72CA..."
+}`} language="json" />
+            </div>
+
+            <h3 className="mt-8 text-lg font-bold text-primary">٢.ب — استخراج سلسلة الشهادات</h3>
+            <p className="leading-relaxed text-muted-foreground">يعيد EJBCA حاوية PKCS7. استخرج شهادات X.509 الفردية كـ PEM:</p>
+            <CodeBlock snippets={step2bSnippets} />
+
+            <Callout type="tip">
+              <strong>بديل:</strong> إذا سجّلت عبر واجهة ويب EJBCA وحمّلت ملف P12، استخرج المفتاح والشهادة بـ:<br />
+              <code className="font-mono text-xs">openssl pkcs12 -in issuer.p12 -nocerts -out issuer.key -nodes</code><br />
+              <code className="font-mono text-xs">openssl pkcs12 -in issuer.p12 -clcerts -nokeys -out issuer.pem</code>
+            </Callout>
+          </StepSection>
+
+          {/* Step 3 */}
+          <StepSection id="step-3" number="٣" icon={UserPlus} title="التسجيل في منصة ثقة">
+            <p className="leading-relaxed text-muted-foreground">
+              أرسل سلسلة الشهادات المستخرجة إلى منصة ثقة. ستقوم المنصة بالتحقق من السلسلة مقابل الجذر الحكومي، والتحقق من حالة OCSP، وتسجيلك كموقع معتمد.
+            </p>
+            <CodeBlock snippets={step3Snippets} />
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
+              <CodeBlock code={`{
+  "issuerId": 1,
+  "serial": "abc123...",
+  "validFrom": "2026-01-01T00:00:00Z",
+  "validUntil": "2027-01-01T00:00:00Z"
+}`} language="json" />
+            </div>
+            <Callout type="warning">
+              يجب أن يحتوي حقل <code>certPem</code> على سلسلة الشهادات الكاملة (الشهادة الرئيسية + شهادات CA الوسيطة). إرسال الشهادة الرئيسية فقط سيتسبب في خطأ التحقق من السلسلة.
+            </Callout>
+          </StepSection>
+
+          {/* Step 4 */}
+          <StepSection id="step-4" number="٤" icon={FilePlus} title="بدء وثيقة جديدة">
+            <p className="leading-relaxed text-muted-foreground">
+              أنشئ معرفاً فريداً للوثيقة، واطبع QR code يحتوي عليه على الوثيقة، ثم احسب الـ Hash وسجّل الوثيقة في المنصة.
+            </p>
+
+            <h3 className="mt-4 text-lg font-bold text-primary">٤.١ — توليد معرف الوثيقة وطباعة QR Code</h3>
+            <CodeBlock snippets={step4aSnippets} />
+            <Callout type="warning">
+              اطبع QR code يحتوي على معرف الوثيقة (<code>$DOC_ID</code>) على ملف PDF <strong>قبل</strong> المتابعة. يجب تضمين الـ QR في الوثيقة في هذه المرحلة لأن الـ Hash يُحسب على المحتوى النهائي للوثيقة.
+            </Callout>
+
+            <h3 className="mt-6 text-lg font-bold text-primary">٤.٢ — حساب الـ Hash وتسجيل الوثيقة</h3>
+            <CodeBlock snippets={step4bSnippets} />
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
+              <CodeBlock code={`{ "docId": "550e8400-e29b-41d4-a716-446655440000" }`} language="json" />
+            </div>
+          </StepSection>
+
+          {/* Step 5 */}
+          <StepSection id="step-5" number="٥" icon={PenTool} title="توقيع الوثيقة (CAdES-BES)">
+            <p className="leading-relaxed text-muted-foreground">
+              وقّع الـ Hash باستخدام توقيع CAdES-BES وأرسله إلى منصة ثقة.
+            </p>
+
+            <h3 className="mt-4 text-lg font-bold text-primary">٥.١ — تحويل الـ Hash وتوقيعه</h3>
+            <CodeBlock snippets={step5aSnippets} />
+            <Callout type="warning">
+              الراية <code>-binary</code> إلزامية. بدونها، يقطع OpenSSL صامتاً المدخل عند البايتات الصفرية (null bytes)، مما ينتج توقيعاً سترفضه المنصة بخطأ عدم تطابق الـ Hash.
+            </Callout>
+
+            <h3 className="mt-6 text-lg font-bold text-primary">٥.٢ — إرسال التوقيع</h3>
+            <CodeBlock snippets={step5bSnippets} />
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 201 Created):</p>
+              <CodeBlock code={`{
+  "signatureId": "660e8400-e29b-41d4-a716-446655440001",
+  "status": "VALID"
+}`} language="json" />
+            </div>
+            <Callout type="info">
+              سيكون <code>status</code> إما <code>VALID</code> إذا اكتمل النصاب المطلوب، أو <code>PENDING_SIGNATURES</code> إذا كانت هناك توقيعات إضافية مطلوبة.
+            </Callout>
+          </StepSection>
+
+          {/* Step 6 */}
+          <StepSection id="step-6" number="٦" icon={XCircle} title="إلغاء وثيقة">
+            <p className="leading-relaxed text-muted-foreground">
+              لإلغاء وثيقة، استدعِ نقطة نهاية الإلغاء. الإلغاء دائم — يجب إنشاء وثيقة مصححة كسجل جديد.
+            </p>
+            <CodeBlock snippets={step6Snippets} />
+            <div className="rounded-xl border border-border bg-card p-5 mt-4">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 200 OK):</p>
+              <CodeBlock code={`{ "revoked": true }`} language="json" />
+            </div>
+          </StepSection>
+
+          {/* Step 7 */}
+          <StepSection id="step-7" number="٧" icon={CheckCircle} title="التحقق من الوثيقة">
+            <p className="leading-relaxed text-muted-foreground">
+              بعد التوقيع، يمكنك التحقق من صلاحية الوثيقة في أي وقت. تُعيد المنصة التحقق من جميع التوقيعات وتُرجع الحالة الراهنة.
+            </p>
+            <CodeBlock snippets={step7Snippets} />
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="mb-2 text-sm font-bold text-muted-foreground">الاستجابة المتوقعة (HTTP 200 OK):</p>
               <CodeBlock code={`{
   "valid": true,
   "docHash": "a1b2c3d4...",
@@ -378,7 +1047,7 @@ curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/signatures" \\
   "minRequiredSignatures": 1,
   "signatures": [
     {
-      "issuerName": "CN=Your Organization Name,O=Your Organization,C=SD",
+      "issuerName": "CN=Ministry of Health,O=Government,C=SD",
       "signedAt": "2026-09-07T12:00:00Z",
       "receiptTime": "2026-09-07T12:00:01Z",
       "certWasValidAtSigning": true,
@@ -386,102 +1055,75 @@ curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/signatures" \\
     }
   ],
   "rendering": "JVBERi0xLjQK..."
-}`} language="json" className="my-0" />
+}`} language="json" />
             </div>
-          </section>
+          </StepSection>
 
           {/* Reference */}
-          <section id="reference" className="space-y-8 scroll-mt-28 border-t border-border pt-10">
-            <h2 className="text-3xl font-black text-primary">المراجع</h2>
+          <section id="reference" className="scroll-mt-28">
+            <h2 className="mb-6 text-2xl font-black text-primary">المرجع السريع</h2>
 
-            <div>
-              <h3 className="mb-4 text-lg font-bold">نقاط النهاية (API Endpoints)</h3>
-              <div className="overflow-x-auto rounded-xl border border-border">
-                <table className="w-full text-sm text-right">
-                  <thead className="bg-secondary/50 font-bold text-primary">
-                    <tr>
-                      <th className="p-4 border-b border-border">المسار (Path)</th>
-                      <th className="p-4 border-b border-border">العملية</th>
-                      <th className="p-4 border-b border-border">الوصف</th>
+            <h3 className="mb-3 text-lg font-bold text-primary">نقاط نهاية API</h3>
+            <div className="overflow-hidden rounded-xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/50">
+                  <tr>
+                    <th className="px-4 py-3 text-right font-bold text-primary">الطريقة</th>
+                    <th className="px-4 py-3 text-right font-bold text-primary">المسار</th>
+                    <th className="px-4 py-3 text-right font-bold text-primary">الوصف</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {[
+                    ['POST', '/api/certs/enroll', 'تسجيل شهادة مصدر'],
+                    ['POST', '/api/documents/initiate', 'بدء وثيقة جديدة'],
+                    ['POST', '/api/documents/{docId}/signatures', 'إرسال توقيع CAdES-BES'],
+                    ['POST', '/api/documents/{docId}/revoke', 'إلغاء وثيقة'],
+                    ['POST', '/api/documents/verify', 'التحقق من صلاحية وثيقة'],
+                    ['GET', '/api/documents/health', 'فحص صحة الخدمة'],
+                  ].map(([method, path, desc], i) => (
+                    <tr key={i} className="bg-card">
+                      <td className="px-4 py-3 font-mono text-xs font-bold text-accent">{method}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-primary">{path}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{desc}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border bg-card font-mono">
-                    <tr><td className="p-4">/api/certs/enroll</td><td className="p-4 text-accent">POST</td><td className="p-4 text-muted-foreground font-sans">تسجيل شهادة مُصدر</td></tr>
-                    <tr><td className="p-4">/api/documents/initiate</td><td className="p-4 text-accent">POST</td><td className="p-4 text-muted-foreground font-sans">بدء وثيقة جديدة</td></tr>
-                    <tr><td className="p-4">/api/documents/{"{docId}"}/signatures</td><td className="p-4 text-accent">POST</td><td className="p-4 text-muted-foreground font-sans">إرسال توقيع CAdES-BES</td></tr>
-                    <tr><td className="p-4">/api/documents/{"{docId}"}/revoke</td><td className="p-4 text-accent">POST</td><td className="p-4 text-muted-foreground font-sans">إلغاء وثيقة</td></tr>
-                    <tr><td className="p-4">/api/documents/verify</td><td className="p-4 text-accent">POST</td><td className="p-4 text-muted-foreground font-sans">التحقق من وثيقة</td></tr>
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <div>
-              <h3 className="mb-4 text-lg font-bold">الأخطاء الشائعة (Troubleshooting)</h3>
-              <div className="overflow-x-auto rounded-xl border border-border">
-                <table className="w-full text-sm text-right">
-                  <thead className="bg-secondary/50 font-bold text-primary">
-                    <tr>
-                      <th className="p-4 border-b border-border">الخطأ</th>
-                      <th className="p-4 border-b border-border">السبب المحتمل</th>
-                      <th className="p-4 border-b border-border">الحل</th>
+            <h3 className="mb-3 mt-8 text-lg font-bold text-primary">ردود الأخطاء الشائعة</h3>
+            <div className="overflow-hidden rounded-xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/50">
+                  <tr>
+                    <th className="px-4 py-3 text-right font-bold text-primary">الرمز</th>
+                    <th className="px-4 py-3 text-right font-bold text-primary">الخطأ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {[
+                    ['400', 'Hash does not match rendering'],
+                    ['400', 'Certificate is not currently certified GOOD by OCSP'],
+                    ['400', 'Signing time is outside the certificate validity period'],
+                    ['400', 'Issuer already enrolled'],
+                    ['404', 'Document not found'],
+                    ['409', 'Issuer has already signed this document'],
+                    ['409', 'Document is revoked'],
+                    ['413', 'Request body exceeds ~15 MB'],
+                  ].map(([code, msg], i) => (
+                    <tr key={i} className="bg-card">
+                      <td className="px-4 py-3 font-mono text-xs font-bold text-red-500">{code}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{msg}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border bg-card">
-                    <tr>
-                      <td className="p-4 font-mono text-xs">Chain does not terminate at trust anchor</td>
-                      <td className="p-4 text-muted-foreground">سلسلة الشهادات غير مكتملة أو لا تتضمن CA وسيطة.</td>
-                      <td className="p-4 text-muted-foreground">تأكد أن <code>issuer.pem</code> يحتوي على السلسلة الكاملة.</td>
-                    </tr>
-                    <tr>
-                      <td className="p-4 font-mono text-xs">Hash does not match rendering</td>
-                      <td className="p-4 text-muted-foreground">تم تعديل الوثيقة بعد حساب الـ Hash.</td>
-                      <td className="p-4 text-muted-foreground">أعد الحساب على ملف الـ PDF النهائي (بعد ختم QR).</td>
-                    </tr>
-                    <tr>
-                      <td className="p-4 font-mono text-xs">Hash mismatch (signature)</td>
-                      <td className="p-4 text-muted-foreground">تم استخدام OpenSSL بدون مُعامل <code>-binary</code>.</td>
-                      <td className="p-4 text-muted-foreground">أضف <code>-binary</code> لأمر التوقيع.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </section>
 
         </main>
       </div>
-    </div>
-  )
-}
-
-function CheckIcon() {
-  return (
-    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-accent/20 text-accent">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    </span>
-  )
-}
-
-function Callout({ type, children }: { type: 'warning' | 'important' | 'info', children: React.ReactNode }) {
-  const styles = {
-    warning: 'border-yellow-500/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
-    important: 'border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400',
-    info: 'border-blue-500/50 bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  }
-  
-  const icons = {
-    warning: <AlertTriangle className="size-5 shrink-0" />,
-    important: <Info className="size-5 shrink-0" />,
-    info: <Info className="size-5 shrink-0" />,
-  }
-
-  return (
-    <div className={`my-6 flex items-start gap-4 rounded-xl border p-4 ${styles[type]}`}>
-      {icons[type]}
-      <div className="text-sm leading-relaxed">{children}</div>
     </div>
   )
 }

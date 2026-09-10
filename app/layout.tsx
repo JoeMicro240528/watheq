@@ -1,10 +1,11 @@
 import { Analytics } from '@vercel/analytics/next'
-import { Noto_Sans_Arabic } from 'next/font/google'
+import { Tajawal } from 'next/font/google'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
-const arabicFont = Noto_Sans_Arabic({
+const arabicFont = Tajawal({
   subsets: ['arabic'],
+  weight: ['300', '400', '500', '700', '800', '900'],
   variable: '--font-arabic',
   display: 'swap',
 })

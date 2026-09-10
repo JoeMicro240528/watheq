@@ -15,6 +15,9 @@ import {
   ShieldCheck,
   X,
   Zap,
+  FilePlus,
+  PenTool,
+  CheckCircle,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -37,9 +40,9 @@ const features = [
 ]
 
 const steps = [
-  ['01', 'أنشئ الوثيقة', 'ارفع الوثيقة أو سجل بصمتها الرقمية وحدد الأطراف المطلوبة.'],
-  ['02', 'اجمع التوقيعات', 'كل طرف يوقع بصمته الرقمية دون الحاجة إلى مشاركة محتوى الوثيقة.'],
-  ['03', 'تحقق بثقة', 'شارك رمز التحقق ودع أي جهة تتأكد من صحة الوثيقة خلال ثوانٍ.'],
+  { icon: FilePlus, title: 'أنشئ الوثيقة', text: 'ارفع الوثيقة أو سجل بصمتها الرقمية وحدد الأطراف المطلوبة.' },
+  { icon: PenTool, title: 'اجمع التوقيعات', text: 'كل طرف يوقع بصمته الرقمية دون الحاجة إلى مشاركة محتوى الوثيقة.' },
+  { icon: CheckCircle, title: 'تحقق بثقة', text: 'شارك رمز التحقق ودع أي جهة تتأكد من صحة الوثيقة خلال ثوانٍ.' },
 ]
 
 export default function Page() {
@@ -48,11 +51,8 @@ export default function Page() {
   return (
     <main dir="rtl" className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-accent/30">
       <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between border-b border-border/60 px-6 py-5 lg:px-10">
-        <a href="#top" className="flex items-center gap-3" aria-label="ثقة - الصفحة الرئيسية">
-          <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_rgba(16,64,68,.5)]">
-            <ShieldCheck className="size-6" strokeWidth={1.8} />
-          </span>
-          <span className="text-xl font-bold tracking-tight">ثقة<span className="text-accent">.</span></span>
+        <a href="#top" className="flex items-center" aria-label="ثقة - الصفحة الرئيسية">
+          <img src="/icon.png" alt="شعار ثقة" className="h-20 w-auto object-contain" />
         </a>
         <nav className="hidden items-center gap-9 text-sm font-medium text-muted-foreground md:flex">
           <a href="#why" className="transition-colors hover:text-foreground">لماذا ثقة؟</a>
@@ -116,7 +116,7 @@ export default function Page() {
                 <div className="h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-full rounded-full bg-accent" /></div>
               </div>
               <div className="divide-y divide-border rounded-xl border border-border">
-                {[['مكتب المحاماة المتحدة','تم التحقق · ١ يونيو ٢٠٢٦'],['البائع · محمد أحمد','تم التحقق · ٢ يونيو ٢٠٢٦'],['المشتري · سارة علي','تم التحقق · ٣ يونيو ٢٠٢٦']].map(([name, date]) => <div key={name} className="flex items-center justify-between px-4 py-4"><div className="flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full bg-secondary"><Fingerprint className="size-4 text-primary" /></span><div><p className="text-xs font-bold">{name}</p><p className="mt-1 text-[10px] text-muted-foreground">{date}</p></div></div><Check className="size-4 text-accent" /></div>)}
+                {[['مكتب المحاماة المتحدة', 'تم التوقيع · ١ يونيو ٢٠٢٦'], ['البائع · محمد أحمد', 'تم التوقيع · ٢ يونيو ٢٠٢٦'], ['المشتري · سارة علي', 'تم التوقيع · ٣ يونيو ٢٠٢٦']].map(([name, date]) => <div key={name} className="flex items-center justify-between px-4 py-4"><div className="flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full bg-secondary"><Fingerprint className="size-4 text-primary" /></span><div><p className="text-xs font-bold">{name}</p><p className="mt-1 text-[10px] text-muted-foreground">{date}</p></div></div><Check className="size-4 text-accent" /></div>)}
               </div>
               <div className="mt-5 flex items-center gap-2 rounded-lg bg-primary p-3 text-xs leading-5 text-primary-foreground"><LockKeyhole className="size-4 shrink-0 text-accent" /> تم حفظ دليل OCSP لكل توقيع لحظة اعتماده</div>
             </div>
@@ -126,16 +126,16 @@ export default function Page() {
       </section>
 
       <section id="why" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10"><div className="max-w-2xl"><p className="mb-4 text-sm font-bold text-accent">لماذا ثقة؟</p><h2 className="text-balance text-3xl font-black tracking-tight text-primary sm:text-4xl">الثقة ليست وعداً.<br />إنها دليل يمكن التحقق منه.</h2></div><div className="mt-14 grid gap-5 md:grid-cols-3">{features.map(({icon: Icon, title, text}) => <article key={title} className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_40px_-28px_rgba(16,64,68,.55)] sm:p-7"><div className="mb-7 grid size-11 place-items-center rounded-lg bg-card text-primary shadow-sm"><Icon className="size-5" /></div><h3 className="text-lg font-bold text-primary">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{text}</p></article>)}</div></div>
+        <div className="mx-auto max-w-7xl px-6 lg:px-10"><div className="max-w-2xl"><p className="mb-4 text-sm font-bold text-accent">لماذا ثقة؟</p><h2 className="text-balance text-3xl font-black tracking-tight text-primary sm:text-4xl">الثقة ليست وعداً.<br />إنها دليل يمكن التحقق منه.</h2></div><div className="mt-14 grid gap-5 md:grid-cols-3">{features.map(({ icon: Icon, title, text }) => <article key={title} className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_18px_40px_-28px_rgba(16,64,68,.55)] sm:p-7"><div className="mb-7 grid size-11 place-items-center rounded-lg bg-card text-primary shadow-sm"><Icon className="size-5" /></div><h3 className="text-lg font-bold text-primary">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{text}</p></article>)}</div></div>
       </section>
 
-      <section id="how" className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28"><div className="grid gap-14 lg:grid-cols-[.75fr_1.25fr] lg:gap-24"><div><p className="mb-4 text-sm font-bold text-accent">ببساطة، وبأمان</p><h2 className="text-balance text-3xl font-black tracking-tight text-primary sm:text-4xl">من المستند<br />إلى الثقة.</h2><p className="mt-6 text-sm leading-7 text-muted-foreground">صُمم ثقة ليجعل دورة التوقيع والتحقق واضحة لكل الأطراف، من المنشئ إلى الموقّع وحتى جهة التحقق.</p></div><div className="divide-y divide-border border-y border-border">{steps.map(([number,title,text]) => <div key={number} className="grid gap-5 py-7 sm:grid-cols-[64px_1fr] sm:items-start"><span className="font-mono text-sm font-bold text-accent">{number}</span><div><h3 className="text-lg font-bold text-primary">{title}</h3><p className="mt-2 max-w-lg text-sm leading-7 text-muted-foreground">{text}</p></div></div>)}</div></div></section>
+      <section id="how" className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28"><div className="grid gap-14 lg:grid-cols-[.75fr_1.25fr] lg:gap-24"><div><p className="mb-4 text-sm font-bold text-accent">ببساطة، وبأمان</p><h2 className="text-balance text-3xl font-black tracking-tight text-primary sm:text-4xl">من المستند<br />إلى الثقة.</h2><p className="mt-6 text-sm leading-7 text-muted-foreground">صُمم ثقة ليجعل دورة التوقيع والتحقق واضحة لكل الأطراف، من المنشئ إلى الموقّع وحتى جهة التحقق.</p></div><div className="divide-y divide-border border-y border-border">{steps.map(({ icon: Icon, title, text }, index) => <div key={index} className="grid gap-5 py-7 sm:grid-cols-[64px_1fr] sm:items-start"><span className="grid size-12 place-items-center rounded-xl bg-accent/10 text-accent"><Icon className="size-6" /></span><div><h3 className="text-lg font-bold text-primary">{title}</h3><p className="mt-2 max-w-lg text-sm leading-7 text-muted-foreground">{text}</p></div></div>)}</div></div></section>
 
-      <section id="security" className="bg-primary py-20 text-primary-foreground lg:py-28"><div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:items-center lg:px-10"><div><p className="mb-4 text-sm font-bold text-accent">أمان يمكن إثباته</p><h2 className="text-balance text-3xl font-black tracking-tight sm:text-4xl">كل توقيع يحمل<br />قصة ثقة كاملة.</h2><p className="mt-6 max-w-lg text-sm leading-8 text-primary-foreground/70">نحن لا نكتفي بالتحقق من التوقيع. نتحقق من سلسلة الشهادة، ونلتقط حالة OCSP لحظة التوقيع، ونحفظها كدليل غير قابل للتغيير.</p></div><div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-primary-foreground/15 bg-primary-foreground/15">{[['PKI','مرساة ثقة حكومية'],['OCSP','دليل صلاحية لحظي'],['CAdES-BES','توقيع متقدم'],['SHA-256','سلامة المحتوى']].map(([big,small]) => <div key={big} className="bg-primary p-6 sm:p-8"><p className="font-mono text-lg font-bold text-accent">{big}</p><p className="mt-2 text-xs leading-5 text-primary-foreground/60">{small}</p></div>)}</div></div></section>
+      <section id="security" className="bg-primary py-20 text-primary-foreground lg:py-28"><div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2 lg:items-center lg:px-10"><div><p className="mb-4 text-sm font-bold text-accent">أمان يمكن إثباته</p><h2 className="text-balance text-3xl font-black tracking-tight sm:text-4xl">كل توقيع يحمل<br />قصة ثقة كاملة.</h2><p className="mt-6 max-w-lg text-sm leading-8 text-primary-foreground/70">نحن لا نكتفي بالتحقق من التوقيع. نتحقق من سلسلة الشهادة، ونلتقط حالة OCSP لحظة التوقيع، ونحفظها كدليل غير قابل للتغيير.</p></div><div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-primary-foreground/15 bg-primary-foreground/15">{[['PKI', 'مرساة ثقة حكومية'], ['OCSP', 'دليل صلاحية لحظي'], ['CAdES-BES', 'توقيع متقدم'], ['SHA-256', 'سلامة المحتوى']].map(([big, small]) => <div key={big} className="bg-primary p-6 sm:p-8"><p className="font-mono text-lg font-bold text-accent">{big}</p><p className="mt-2 text-xs leading-5 text-primary-foreground/60">{small}</p></div>)}</div></div></section>
 
       <section id="start" className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28"><div className="flex flex-col items-start justify-between gap-8 rounded-2xl bg-accent px-7 py-10 text-accent-foreground sm:px-12 sm:py-14 lg:flex-row lg:items-center"><div><h2 className="text-balance text-3xl font-black sm:text-4xl">جاهز لتوثيق ما يهمك؟</h2><p className="mt-3 text-sm leading-7 opacity-75">ابدأ ببناء طبقة الثقة الرقمية لمؤسستك اليوم.</p></div><a href="#login" className="inline-flex shrink-0 items-center rounded-lg bg-primary px-6 py-4 font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">ابدأ مع ثقة <ArrowLeft className="mr-3 size-5" /></a></div></section>
 
-      <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:px-10"><div className="flex items-center gap-2 font-bold text-primary"><span className="grid size-7 place-items-center rounded-md bg-primary text-primary-foreground"><ShieldCheck className="size-4" /></span> ثقة<span className="text-accent">.</span></div><p>منصة التحقق من الوثائق متعددة التوقيعات</p><p>© ٢٠٢٦ ثقة. جميع الحقوق محفوظة.</p></div></footer>
+      <footer className="border-t border-border"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:px-10"><div className="flex items-center"><img src="/icon.png" alt="شعار ثقة" className="h-20 w-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" /></div><p>منصة التحقق من الوثائق متعددة التوقيعات</p><p>© ٢٠٢٦ ثقة. جميع الحقوق محفوظة.</p></div></footer>
     </main>
   )
 }
