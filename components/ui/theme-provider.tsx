@@ -13,14 +13,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light')
 
   useEffect(() => {
-    // On mount, read from localStorage or system preference
+    // On mount, read from localStorage only. Default is always light.
     const stored = localStorage.getItem('thiqa-theme') as Theme | null
-    if (stored) {
-      setTheme(stored)
-      document.documentElement.classList.toggle('dark', stored === 'dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (stored === 'dark') {
       setTheme('dark')
       document.documentElement.classList.add('dark')
+    } else {
+      // Ensure light mode is explicit (clears any stale dark class)
+      document.documentElement.classList.remove('dark')
     }
   }, [])
 
