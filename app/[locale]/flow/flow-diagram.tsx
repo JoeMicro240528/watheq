@@ -5,94 +5,74 @@ import { useState } from 'react'
 import { ShieldCheck, UserPlus, FilePlus, PenTool, CheckCircle, XCircle, Server, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const nodes = [
-  {
-    id: 1,
-    title: 'الحصول على الشهادة',
-    desc: 'إنشاء الكيان واستخراج P12',
-    icon: ShieldCheck,
-    color: 'from-blue-500 to-cyan-400',
-    details: 'استخراج المفتاح الخاص (issuer.key) وسلسلة الشهادات (issuer.pem) من EJBCA عبر سطر الأوامر (OpenSSL).',
-    api: 'CLI / OpenSSL',
-    snippet: `openssl pkcs12 -in issuer.p12 -nocerts -out issuer.key \\
-  -passin pass:PASSWORD -passout pass:PASSWORD
+import { useTranslations } from 'next-intl'
 
-openssl pkcs12 -in issuer.p12 -nokeys -out issuer.pem \\
-  -passin pass:PASSWORD`
-  },
-  {
-    id: 2,
-    title: 'التسجيل في ثقة',
-    desc: 'تسجيل كمصدر معتمد',
-    icon: UserPlus,
-    color: 'from-indigo-500 to-blue-400',
-    details: 'إرسال سلسلة الشهادات إلى منصة ثقة للتحقق من الجذر وتسجيل الحساب ليصبح جاهزاً لتوقيع الوثائق.',
-    api: 'POST /api/certs/enroll',
-    snippet: `curl -X POST "YOUR_HUB_URL/api/certs/enroll" \\
-  -H "Content-Type: application/json" \\
-  -d "{ \\"certPem\\": \\"$CERT_PEM\\" }"`
-  },
-  {
-    id: 3,
-    title: 'بدء وثيقة جديدة',
-    desc: 'إنشاء ID وحساب Hash',
-    icon: FilePlus,
-    color: 'from-purple-500 to-indigo-400',
-    details: 'إنشاء UUID، حساب SHA-256 للوثيقة (PDF)، وإرسالها للمنصة لبدء التوقيع. يجب طباعة QR يحتوي على הـ UUID على الوثيقة قبل هذه الخطوة.',
-    api: 'POST /api/documents/initiate',
-    snippet: `curl -X POST "YOUR_HUB_URL/api/documents/initiate" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "docId": "550e8400-e29b...",
-    "docHash": "a1b2c3d...",
-    "hashAlgorithm": "SHA-256",
-    "renderingBase64": "JVBER..."
-  }'`
-  },
-  {
-    id: 4,
-    title: 'توقيع CAdES-BES',
-    desc: 'التوقيع وإرسال البصمة',
-    icon: PenTool,
-    color: 'from-emerald-500 to-teal-400',
-    details: 'توقيع الـ Hash محلياً باستخدام OpenSSL بصيغة CAdES-BES (لضمان صحة وقت التوقيع)، وإرسال التوقيع المشفر للمنصة.',
-    api: 'POST /api/documents/{docId}/signatures',
-    snippet: `curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/signatures" \\
-  -H "Content-Type: application/json" \\
-  -d "{ \\"cadesSignatureBase64\\": \\"$SIG_B64\\" }"`
-  },
-  {
-    id: 5,
-    title: 'إلغاء وثيقة (Revoke)',
-    desc: 'إبطال صلاحية الوثيقة',
-    icon: XCircle,
-    color: 'from-red-500 to-orange-400',
-    details: 'إلغاء الوثيقة بشكل دائم في حال وجود خطأ أو تعديل إداري. سيعتبر أي تحقق مستقبلي هذه الوثيقة باطلة.',
-    api: 'POST /api/documents/{docId}/revoke',
-    snippet: `curl -X POST "YOUR_HUB_URL/api/documents/$DOC_ID/revoke" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "reason": "Administrative cancellation",
-    "revokedBy": "YOUR_ISSUER_NAME"
-  }'`
-  },
-  {
-    id: 6,
-    title: 'التحقق (Verify)',
-    desc: 'التأكد من التواقيع',
-    icon: CheckCircle,
-    color: 'from-green-500 to-emerald-400',
-    details: 'التحقق من صحة الوثيقة والتأكد من تواقيع كافة المصدرين، وحالة شهاداتهم في وقت التوقيع (OCSP).',
-    api: 'POST /api/documents/verify',
-    snippet: `curl -X POST "YOUR_HUB_URL/api/documents/verify" \\
-  -H "Content-Type: application/json" \\
-  -d "{ \\"docId\\": \\"$DOC_ID\\" }"`
-  }
-]
+import { useLocale } from 'next-intl'
 
-export function FlowDiagram() {
+export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) {
+  const t = useTranslations('flowDiagram')
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
+  const dir = isRtl ? 'rtl' : 'ltr'
   const [activeStep, setActiveStep] = useState<number | null>(null)
-  const [selectedNode, setSelectedNode] = useState<typeof nodes[0] | null>(null)
+  const [selectedNode, setSelectedNode] = useState<any>(null)
+
+  const nodes = [
+    {
+      id: 1,
+      title: t('n1Title'),
+      desc: t('n1Desc'),
+      icon: ShieldCheck,
+      color: 'from-blue-500 to-cyan-400',
+      details: t('n1Details'),
+      api: 'CLI / OpenSSL'
+    },
+    {
+      id: 2,
+      title: t('n2Title'),
+      desc: t('n2Desc'),
+      icon: UserPlus,
+      color: 'from-indigo-500 to-blue-400',
+      details: t('n2Details'),
+      api: 'POST /api/certs/enroll'
+    },
+    {
+      id: 3,
+      title: t('n3Title'),
+      desc: t('n3Desc'),
+      icon: FilePlus,
+      color: 'from-purple-500 to-indigo-400',
+      details: t('n3Details'),
+      api: 'POST /api/documents/initiate'
+    },
+    {
+      id: 4,
+      title: t('n4Title'),
+      desc: t('n4Desc'),
+      icon: PenTool,
+      color: 'from-emerald-500 to-teal-400',
+      details: t('n4Details'),
+      api: 'POST /api/documents/{docId}/signatures'
+    },
+    {
+      id: 5,
+      title: t('n5Title'),
+      desc: t('n5Desc'),
+      icon: XCircle,
+      color: 'from-red-500 to-orange-400',
+      details: t('n5Details'),
+      api: 'POST /api/documents/{docId}/revoke'
+    },
+    {
+      id: 6,
+      title: t('n6Title'),
+      desc: t('n6Desc'),
+      icon: CheckCircle,
+      color: 'from-green-500 to-emerald-400',
+      details: t('n6Details'),
+      api: 'POST /api/documents/verify'
+    }
+  ]
 
   // Node Component
   const renderNode = (nodeIndex: number, className: string = "") => {
@@ -126,19 +106,18 @@ export function FlowDiagram() {
 
         <div className="text-center">
           <div className="mb-2 inline-flex items-center rounded-full bg-secondary px-3 py-1 text-[10px] font-bold text-primary">
-            الخطوة {node.id}
+            {t('step')} {node.id}
           </div>
           <h3 className="text-lg font-bold text-foreground">{node.title}</h3>
           <p className="mt-1 text-xs text-muted-foreground">{node.desc}</p>
         </div>
 
-        {/* Hint to click (Doesn't change card height to prevent out-of-screen hover traps) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: isActive ? 1 : 0 }}
           className="mt-2 text-[10px] font-bold text-accent"
         >
-          انقر لعرض التفاصيل والصيغ البرمجية 👆
+          {t('clickHint')}
         </motion.div>
       </motion.div>
     )
@@ -146,17 +125,14 @@ export function FlowDiagram() {
 
   return (
     <>
-      <div className="relative mx-auto mt-12 max-w-4xl p-4 md:p-10" dir="rtl">
+      <div className="relative mx-auto mt-12 max-w-4xl p-4 md:p-10" dir={dir}>
         
         {/* SVG Background Lines for Tree */}
         <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" style={{ zIndex: 0 }}>
-          {/* Line 1 to 2 */}
           <motion.line x1="50%" y1="120" x2="50%" y2="280" stroke="currentColor" strokeWidth="2" className="text-border/40" strokeDasharray="6,6"
             initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, delay: 0.5 }} />
-          {/* Line 2 to 3 */}
           <motion.line x1="50%" y1="280" x2="50%" y2="440" stroke="currentColor" strokeWidth="2" className="text-border/40" strokeDasharray="6,6"
             initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, delay: 0.9 }} />
-          {/* Line 3 to 4 */}
           <motion.line x1="50%" y1="440" x2="50%" y2="600" stroke="currentColor" strokeWidth="2" className="text-border/40" strokeDasharray="6,6"
             initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, delay: 1.3 }} />
         </svg>
@@ -229,7 +205,7 @@ export function FlowDiagram() {
       {/* Details Modal */}
       <AnimatePresence>
         {selectedNode && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4" dir="rtl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4" dir={dir}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -242,10 +218,10 @@ export function FlowDiagram() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-border bg-card shadow-2xl"
+              className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="flex items-center gap-4 border-b border-border/50 bg-secondary/30 p-6">
+              <div className="flex items-center gap-4 border-b border-border/50 bg-secondary/30 p-6 shrink-0">
                 <div className={cn("grid size-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br shadow-lg text-white", selectedNode.color)}>
                   <selectedNode.icon className="size-6" />
                 </div>
@@ -265,21 +241,17 @@ export function FlowDiagram() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6">
+              <div className="overflow-y-auto p-6">
                 <p className="text-base leading-relaxed text-muted-foreground">
                   {selectedNode.details}
                 </p>
-                
-                <div className="mt-6 rounded-xl border border-border/50 bg-[#0d1117] p-4">
-                  <div className="mb-2 text-xs font-bold text-white/50">مثال تطبيقي:</div>
-                  <pre className="overflow-x-auto whitespace-pre font-mono text-[13px] leading-relaxed text-gray-300" dir="ltr">
-                    {selectedNode.snippet}
-                  </pre>
+                <div className="mt-6">
+                  {codeBlocks && codeBlocks[selectedNode.id - 1]}
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                  <a href={`/guide#step-${selectedNode.id}`} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
-                    عرض الخطوة في الدليل
+                  <a href={`/${locale}/guide#step-${selectedNode.id}`} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
+                    {t('viewInGuide')}
                   </a>
                 </div>
               </div>
