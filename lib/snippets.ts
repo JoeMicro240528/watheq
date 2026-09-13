@@ -1,3 +1,58 @@
+export const cliConfigSnippet = [
+  {
+    language: 'JSON',
+    code: `{
+  "host": "YOUR_EJBCA_SERVER",
+  "port": 22,
+  "ssh_username": "SSH_USERNAME",
+  "ssh_password": "SSH_PASSWORD",
+  "ejbca_cli_password": "EJBCA_CLI_PASSWORD",
+  "ca_name": "YOUR_CA_NAME",
+  "cert_profile": "YOUR_CERT_PROFILE",
+  "ee_profile": "YOUR_EE_PROFILE",
+  "ra_base_url": "https://YOUR_EJBCA_SERVER:8443",
+  "credentials_file": "issuers.txt",
+  "default_country": "SD"
+}`
+  }
+]
+
+export const cliCmdSnippet = [
+  {
+    language: 'Bash',
+    code: `python3 create-issuer.py create "Ministry of Health" "securepass123"`
+  }
+]
+
+export const cliOutputSnippet = [
+  {
+    language: 'Terminal',
+    code: `==================================================
+  End entity created successfully!
+==================================================
+
+  Organization:  Ministry of Health
+  Username:      issuer-ministry-of-health
+  Password:      securepass123
+  Country:       SD
+  DN:            CN=Ministry of Health,O=Ministry of Health,C=SD
+
+  Enrollment URL: https://EJBCA_SERVER:8443/ejbca/ra/cas.xhtml
+
+  Steps to enroll:
+  1. Go to: https://EJBCA_SERVER:8443/ejbca/ra/cas.xhtml
+  2. Click on 'ThiqaCA' in the list
+  3. Login with username: issuer-ministry-of-health
+  4. Enter password: securepass123
+  5. Click 'Enroll' to generate your certificate
+  6. Download the P12 file
+  7. Import into your application
+==================================================
+
+Credentials saved to: issuers.txt`
+  }
+]
+
 // ─── Step 1: Generate Keys and CSR ───────────────────────────────────────────
 export const step1Snippets = [
   {

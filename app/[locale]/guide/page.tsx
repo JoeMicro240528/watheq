@@ -14,7 +14,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   }
 }
 
-import { step1Snippets, step2Snippets, step2bSnippets, step3Snippets, step4aSnippets, step4bSnippets, step5aSnippets, step5bSnippets, step6Snippets, step7Snippets } from '@/lib/snippets'
+import { cliConfigSnippet, cliCmdSnippet, cliOutputSnippet, step1Snippets, step2Snippets, step2bSnippets, step3Snippets, step4aSnippets, step4bSnippets, step5aSnippets, step5bSnippets, step6Snippets, step7Snippets } from '@/lib/snippets'
 
 // --- Helper Components ---
 function StepSection({ id, title, icon: Icon, children }: { id: string, title: string, icon: any, children: React.ReactNode }) {
@@ -80,6 +80,7 @@ export default function GuidePage() {
           <div className="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('sidebarTitle')}</div>
           <nav className="flex flex-col gap-1.5 text-sm font-medium">
             <a href="#intro" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('introNav')}</a>
+            <a href="#cli" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('cliNav')}</a>
             <a href="#prerequisites" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('prereqNav')}</a>
             <a href="#step-1" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('step1Nav')}</a>
             <a href="#step-2" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('step2Nav')}</a>
@@ -127,6 +128,69 @@ export default function GuidePage() {
                   </li>
                 ))}
               </ul>
+            </div>
+          </section>
+
+          {/* Quick Start CLI */}
+          <section id="cli" className="scroll-mt-28">
+            <h2 className="mb-6 text-2xl font-black text-primary">{t('cliTitle')}</h2>
+            <div className="rounded-xl border border-border bg-card p-6">
+              <p className="leading-relaxed text-muted-foreground">{t('cliDesc')}</p>
+              
+              <div className="mt-4 flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-4 text-sm text-accent-foreground">
+                <AlertTriangle className="mt-0.5 size-5 shrink-0 text-accent" />
+                <p className="leading-relaxed">{t('cliWarning')}</p>
+              </div>
+
+              <div className="mt-6 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+                <a href="/ejbca-issuer-cli.zip" download className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+                  <Download className="size-4" /> {t('cliDownloadBtn')}
+                </a>
+                <p className="text-xs leading-5 text-muted-foreground sm:max-w-md">{t('cliAutomationNote')}</p>
+              </div>
+
+              <h3 className="mt-8 mb-4 text-lg font-bold text-foreground">{t('cliSetup')}</h3>
+              <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                <li>{t('cliSetup1')}</li>
+                <li>{t('cliSetup2')}</li>
+              </ol>
+              <div className="mt-4">
+                <CodeBlock snippets={cliConfigSnippet} />
+              </div>
+
+              <h3 className="mt-8 mb-4 text-lg font-bold text-foreground">{t('cliCommands')}</h3>
+              <div className="overflow-hidden rounded-xl border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/50">
+                    <tr>
+                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmd')}</th>
+                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmdDesc')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border bg-card">
+                    {[
+                      ['python3 create-issuer.py create <org> <pw>', t('cliCmd1')],
+                      ['python3 create-issuer.py list', t('cliCmd2')],
+                      ['python3 create-issuer.py disable <username>', t('cliCmd3')],
+                      ['python3 create-issuer.py enable <username>', t('cliCmd4')],
+                      ['python3 create-issuer.py renew <username>', t('cliCmd5')],
+                      ['python3 create-issuer.py', t('cliCmd6')],
+                    ].map(([cmd, desc], i) => (
+                      <tr key={i}>
+                        <td className="px-4 py-3 font-mono text-xs text-primary" dir="ltr">{cmd}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 className="mt-8 mb-4 text-lg font-bold text-foreground">{t('cliExample')}</h3>
+              <div className="mt-4">
+                <CodeBlock snippets={cliCmdSnippet} />
+              </div>
+              <p className="mt-4 mb-2 text-sm text-muted-foreground">{t('cliExampleDesc')}</p>
+              <CodeBlock snippets={cliOutputSnippet} />
             </div>
           </section>
 
@@ -385,6 +449,53 @@ export default function GuidePage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <h3 className="mb-3 mt-8 text-lg font-bold text-primary">{t('cliTitle')}</h3>
+            <div className="rounded-xl border border-border bg-card p-6">
+              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{t('cliDesc')}</p>
+              
+              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliSetup')}</h4>
+              <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                <li>{t('cliSetup1')}</li>
+                <li>{t('cliSetup2')}</li>
+              </ol>
+              <div className="mt-4 mb-6">
+                <CodeBlock snippets={cliConfigSnippet} />
+              </div>
+
+              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliCommands')}</h4>
+              <div className="overflow-hidden rounded-xl border border-border mb-6">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/50">
+                    <tr>
+                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmd')}</th>
+                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmdDesc')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border bg-card">
+                    {[
+                      ['python3 create-issuer.py create <org> <pw>', t('cliCmd1')],
+                      ['python3 create-issuer.py list', t('cliCmd2')],
+                      ['python3 create-issuer.py disable <username>', t('cliCmd3')],
+                      ['python3 create-issuer.py enable <username>', t('cliCmd4')],
+                      ['python3 create-issuer.py renew <username>', t('cliCmd5')],
+                      ['python3 create-issuer.py', t('cliCmd6')],
+                    ].map(([cmd, desc], i) => (
+                      <tr key={i}>
+                        <td className="px-4 py-3 font-mono text-xs text-primary" dir="ltr">{cmd}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliExample')}</h4>
+              <div className="mt-4">
+                <CodeBlock snippets={cliCmdSnippet} />
+              </div>
+              <p className="mt-4 mb-2 text-sm text-muted-foreground">{t('cliExampleDesc')}</p>
+              <CodeBlock snippets={cliOutputSnippet} />
             </div>
           </section>
 

@@ -65,6 +65,11 @@
     "cades": "Advanced Signature",
     "sha": "Content Integrity"
   },
+  "guideCta": {
+    "title": "Are you a developer or system admin?",
+    "desc": "Discover how to integrate your systems with the Thiqa platform. Read the Issuer Integration Guide to enable digital signatures securely.",
+    "button": "Read the Integration Guide"
+  },
   "cta": {
     "title": "Download the App and Verify Your Documents Now",
     "desc": "Scan the QR code to download the Thiqa app.",
@@ -83,6 +88,7 @@
     "prerequisites": "Prerequisites",
     "reference": "Quick Reference",
     "introNav": "Introduction & Goals",
+    "cliNav": "Quick Start (CLI)",
     "prereqNav": "Prerequisites",
     "step1Nav": "1. Generate Keys & CSR",
     "step2Nav": "2. Register in EJBCA",
@@ -163,7 +169,26 @@
     "commonErrors": "Common Errors Responses",
     "code": "Code",
     "error": "Error",
-    "stepLabel": "Step"
+    "stepLabel": "Step",
+    "cliTitle": "Quick Start with ejbca-issuer-cli (Testing Only)",
+    "cliDesc": "For testing environments, the ejbca-issuer-cli tool automates issuer lifecycle management. It handles end entity creation, listing, disabling, enabling, and certificate renewal via SSH access to the EJBCA server.",
+    "cliAutomationNote": "Note: Using this tool automates and skips the following manual steps: 1. Generate Keys & CSR, and 2. Enroll in EJBCA. The tool will automatically generate keys and retrieve the certificate.",
+    "cliDownloadBtn": "Download CLI Scripts",
+    "cliWarning": "Important: This CLI is intended only for testing and development phases. In production, issuer management must go through the EJBCA RA interface or your organization's PKI governance process.",
+    "cliSetup": "Setup",
+    "cliSetup1": "Copy ejbca-config.json from the ejbca-issuer-cli directory",
+    "cliSetup2": "Fill in your EJBCA connection details:",
+    "cliCommands": "Commands",
+    "cliCmd": "Command",
+    "cliCmdDesc": "Description",
+    "cliCmd1": "Create a new issuer end entity",
+    "cliCmd2": "List all registered issuers",
+    "cliCmd3": "Disable an issuer",
+    "cliCmd4": "Re-enable a disabled issuer",
+    "cliCmd5": "Show renewal instructions",
+    "cliCmd6": "Interactive mode (no arguments)",
+    "cliExample": "Example",
+    "cliExampleDesc": "This creates an end entity on the EJBCA server and outputs:"
   },
   "flow": {
     "pageTitle": "Integration Flow",

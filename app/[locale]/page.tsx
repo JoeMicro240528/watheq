@@ -47,72 +47,76 @@ export default function Page() {
 
   return (
     <main dir={isRtl ? 'rtl' : 'ltr'} className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-accent/30">
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between border-b border-border/60 px-6 py-5 lg:px-10">
-        <a href="#top" className="flex items-center gap-2" aria-label="ثقة - الصفحة الرئيسية">
-          <div className="flex items-center gap-[-0.6rem] text-primary">
-            <ShieldCheck className="size-6" strokeWidth={2.5} />
-            <QrCode className="size-6" strokeWidth={2.5} />
-            <img src={isRtl ? "/logo_ar.png" : "/logo_en.png"} alt="شعار ثقة" className={cn("h-10", isRtl ? "mr-[-2.2rem]" : "ml-[-1.9rem]")} />
+      <header className="relative z-20 border-b border-border/60">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
+          <a href="#top" className="flex items-center gap-2" aria-label="ثقة - الصفحة الرئيسية">
+            <div className="flex items-center gap-[-0.6rem] text-primary">
+              <ShieldCheck className="size-6" strokeWidth={2.5} />
+              <QrCode className="size-6" strokeWidth={2.5} />
+              <img src={isRtl ? "/logo_ar.png" : "/logo_en.png"} alt="شعار ثقة" className={cn("h-10", isRtl ? "mr-[-2.2rem]" : "ml-[-1.9rem]")} />
+            </div>
+          </a>
+          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground lg:flex xl:gap-9">
+            <a href="#why" className="transition-colors hover:text-foreground">{t('nav.why')}</a>
+            <a href="#how" className="transition-colors hover:text-foreground">{t('nav.how')}</a>
+            <a href="#security" className="transition-colors hover:text-foreground">{t('nav.security')}</a>
+            <a href={`/${locale}/guide`} className="transition-colors font-bold text-primary hover:text-foreground">{t('nav.devGuide')}</a>
+          </nav>
+          <div className="hidden items-center gap-3 lg:flex">
+            <ThemeToggle />
+            <LanguageToggle />
+            <a href="#start" className="rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{t('nav.start')} <ArrowIcon className="mr-2 inline size-4" /></a>
           </div>
-
-        </a>
-        <nav className="hidden items-center gap-9 text-sm font-medium text-muted-foreground md:flex">
-          <a href="#why" className="transition-colors hover:text-foreground">{t('nav.why')}</a>
-          <a href="#how" className="transition-colors hover:text-foreground">{t('nav.how')}</a>
-          <a href="#security" className="transition-colors hover:text-foreground">{t('nav.security')}</a>
-          <a href={`/${locale}/guide`} className="transition-colors font-bold text-primary hover:text-foreground">{t('nav.devGuide')}</a>
-        </nav>
-        <div className="hidden items-center gap-3 md:flex">
-          <ThemeToggle />
-          <LanguageToggle />
-          <a href="#start" className="rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{t('nav.start')} <ArrowIcon className="mr-2 inline size-4" /></a>
+          <button className="rounded-lg border border-border p-2 lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="فتح القائمة">
+            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
         </div>
-        <button className="rounded-lg border border-border p-2 md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="فتح القائمة">
-          {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
       </header>
 
       {mobileOpen && (
-        <nav className="mx-6 flex flex-col gap-5 rounded-xl border border-border bg-card p-5 text-sm font-semibold shadow-lg md:hidden">
-          <a href="#why" onClick={() => setMobileOpen(false)}>{t('nav.why')}</a>
-          <a href="#how" onClick={() => setMobileOpen(false)}>{t('nav.how')}</a>
-          <a href="#security" onClick={() => setMobileOpen(false)}>{t('nav.security')}</a>
-          <a href={`/${locale}/guide`} onClick={() => setMobileOpen(false)} className="text-primary font-bold">{t('nav.devGuide')}</a>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <LanguageToggle />
+        <div className="absolute inset-x-0 top-[73px] z-10 border-b border-border/60 bg-background/95 px-6 py-5 shadow-lg backdrop-blur-md lg:hidden">
+          <nav className="flex flex-col gap-5 text-sm font-semibold">
+            <a href="#why" onClick={() => setMobileOpen(false)}>{t('nav.why')}</a>
+            <a href="#how" onClick={() => setMobileOpen(false)}>{t('nav.how')}</a>
+            <a href="#security" onClick={() => setMobileOpen(false)}>{t('nav.security')}</a>
+            <a href={`/${locale}/guide`} onClick={() => setMobileOpen(false)} className="text-primary font-bold">{t('nav.devGuide')}</a>
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <LanguageToggle />
+              </div>
+              <a href="#start" className="rounded-lg bg-primary px-4 py-3 text-center text-primary-foreground">{t('nav.start')}</a>
             </div>
-            <a href="#start" className="rounded-lg bg-primary px-4 py-3 text-center text-primary-foreground">{t('nav.start')}</a>
-          </div>
-        </nav>
+          </nav>
+        </div>
       )}
 
       {/* Hero */}
-      <section id="top" className="relative mx-auto max-w-7xl bg-[linear-gradient(to_left,transparent_0%,rgba(45,143,132,.05)_100%)] px-6 pb-24 pt-14 lg:px-10 lg:pb-32 lg:pt-24">
-        <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_.95fr] lg:gap-20">
-          <div className="max-w-2xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/8 px-4 py-2 text-xs font-bold text-primary">
-              <span className="size-2 rounded-full bg-accent" /> {t('hero.badge')}
+      <section id="top" className="relative bg-[linear-gradient(to_left,transparent_0%,rgba(45,143,132,.05)_100%)]">
+        <div className="mx-auto max-w-7xl px-6 pb-24 pt-14 lg:px-10 lg:pb-32 lg:pt-24">
+          <div className="grid items-center gap-16 xl:grid-cols-[1.05fr_.95fr] xl:gap-20">
+            <div className="max-w-2xl">
+              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/8 px-4 py-2 text-xs font-bold text-primary">
+                <span className="size-2 rounded-full bg-accent" /> {t('hero.badge')}
+              </div>
+              <h1 className="text-balance text-4xl font-black leading-[1.14] tracking-[-.04em] text-primary sm:text-5xl lg:text-6xl xl:text-7xl">
+                {t('hero.title')}<br /><span className="text-accent">{t('hero.titleAccent')}</span>
+              </h1>
+              <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">
+                {t('hero.desc')}
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <a href="#start" className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-4 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/15">{t('hero.cta')} <ArrowIcon className="mr-3 size-5" /></a>
+                <a href="#how" className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 font-bold text-primary hover:border-primary/40">{t('hero.ctaSecondary')} <ArrowIconAlt className="mr-3 size-5" /></a>
+              </div>
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold text-muted-foreground">
+                <span className="flex items-center gap-2"><Check className="size-4 text-accent" /> {t('hero.badge1')}</span>
+                <span className="flex items-center gap-2"><Check className="size-4 text-accent" /> {t('hero.badge2')}</span>
+              </div>
             </div>
-            <h1 className="text-balance text-5xl font-black leading-[1.14] tracking-[-.04em] text-primary sm:text-6xl lg:text-7xl">
-              {t('hero.title')}<br /><span className="text-accent">{t('hero.titleAccent')}</span>
-            </h1>
-            <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">
-              {t('hero.desc')}
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <a href="#start" className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-4 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/15">{t('hero.cta')} <ArrowIcon className="mr-3 size-5" /></a>
-              <a href="#how" className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 font-bold text-primary hover:border-primary/40">{t('hero.ctaSecondary')} <ArrowIconAlt className="mr-3 size-5" /></a>
-            </div>
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold text-muted-foreground">
-              <span className="flex items-center gap-2"><Check className="size-4 text-accent" /> {t('hero.badge1')}</span>
-              <span className="flex items-center gap-2"><Check className="size-4 text-accent" /> {t('hero.badge2')}</span>
-            </div>
-          </div>
 
-          {/* Card */}
-          <div className="relative mx-auto w-full max-w-[520px] lg:ml-0" aria-label="لوحة تحقق من وثيقة">
+            {/* Card */}
+            <div className="relative mx-auto w-full max-w-[520px] lg:ml-0" aria-label="لوحة تحقق من وثيقة">
             <div className="absolute -inset-8 -z-10 bg-[radial-gradient(circle_at_center,rgba(45,143,132,.15),transparent_64%)]" />
             <div className="relative rounded-[1.35rem] border border-primary/10 bg-card p-5 shadow-[0_28px_80px_-36px_rgba(16,64,68,.48)] ring-1 ring-white/70 sm:p-7">
               <div className="flex items-center justify-between border-b border-border pb-5">
@@ -146,6 +150,7 @@ export default function Page() {
             <div className="absolute -bottom-5 -left-3 hidden items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-xl sm:flex">
               <span className="grid size-8 place-items-center rounded-full bg-accent/10"><Zap className="size-4 text-accent" /></span>
               <div><p className="text-[10px] text-muted-foreground">{t('card.verifyTime')}</p><p className="font-mono text-sm font-bold text-primary">0.84s</p></div>
+            </div>
             </div>
           </div>
         </div>
@@ -213,8 +218,21 @@ export default function Page() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="start" className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
+      {/* CTAs */}
+      <section id="start" className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-20 lg:px-10 lg:py-28">
+        
+        {/* Developer CTA */}
+        <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-border bg-card px-7 py-10 sm:px-12 sm:py-14 lg:flex-row lg:items-center">
+          <div>
+            <h2 className="text-balance text-2xl font-black text-primary sm:text-3xl">{t('guideCta.title')}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{t('guideCta.desc')}</p>
+          </div>
+          <a href="/guide" className="inline-flex shrink-0 items-center rounded-lg bg-primary px-8 py-4 font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+            {t('guideCta.button')} <ArrowIcon className="mr-3 size-5" />
+          </a>
+        </div>
+
+        {/* User CTA */}
         <div className="flex flex-col items-start justify-between gap-8 rounded-2xl bg-accent px-7 py-10 text-accent-foreground sm:px-12 sm:py-14 lg:flex-row lg:items-center">
           <div>
             <h2 className="text-balance text-3xl font-black sm:text-4xl">{t('cta.title')}</h2>
