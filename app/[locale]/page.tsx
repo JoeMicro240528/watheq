@@ -220,7 +220,12 @@ export default function Page() {
             <h2 className="text-balance text-3xl font-black sm:text-4xl">{t('cta.title')}</h2>
             <p className="mt-3 text-sm leading-7 opacity-75">{t('cta.desc')}</p>
           </div>
-          <a href="#login" className="inline-flex shrink-0 items-center rounded-lg bg-primary px-6 py-4 font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{t('cta.button')} <ArrowIcon className="mr-3 size-5" /></a>
+          <div className="flex flex-col gap-6 pt-4 lg:items-end lg:pt-0">
+            <div className="flex items-center gap-4 rounded-xl bg-accent-foreground/5 p-4">
+              <p className="text-sm font-bold opacity-90 max-w-[140px] leading-relaxed text-balance">{t('cta.downloadApp')}</p>
+              <img src="/QR-code-linkeDownloadApp.jpeg" alt="QR Code Download App" className="size-48 shrink-0 rounded-2xl bg-white p-3 shadow-md" />
+            </div>
+          </div>
         </div>
       </section>
 

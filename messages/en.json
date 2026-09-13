@@ -68,7 +68,8 @@
   "cta": {
     "title": "Ready to Authenticate What Matters?",
     "desc": "Start building your organization's digital trust layer today.",
-    "button": "Get Started with Thiqa"
+    "button": "Get Started with Thiqa",
+    "downloadApp": "Download the app and start now"
   },
   "footer": {
     "tagline": "Multi-signature document verification platform",
