@@ -66,10 +66,10 @@
     "sha": "Content Integrity"
   },
   "cta": {
-    "title": "Ready to Authenticate What Matters?",
-    "desc": "Start building your organization's digital trust layer today.",
+    "title": "Download the App and Verify Your Documents Now",
+    "desc": "Scan the QR code to download the Thiqa app, and start verifying your documents securely and easily.",
     "button": "Get Started with Thiqa",
-    "downloadApp": "Download the app and start now"
+    "downloadApp": "Scan to download"
   },
   "footer": {
     "tagline": "Multi-signature document verification platform",
