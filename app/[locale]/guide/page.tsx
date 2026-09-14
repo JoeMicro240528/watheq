@@ -91,10 +91,6 @@ export default function GuidePage() {
             <a href="#step-7" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('step7Nav')}</a>
             <a href="#reference" className="rounded-lg px-3 py-2 text-foreground transition-colors hover:bg-secondary">{t('reference')}</a>
           </nav>
-          <a href="/public/ejbca-issuer-cli.zip" download className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
-            <Download className="size-4" />
-            {t('downloadCli')}
-          </a>
         </aside>
 
         {/* Main Content */}
@@ -449,53 +445,6 @@ export default function GuidePage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-            <h3 className="mb-3 mt-8 text-lg font-bold text-primary">{t('cliTitle')}</h3>
-            <div className="rounded-xl border border-border bg-card p-6">
-              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{t('cliDesc')}</p>
-              
-              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliSetup')}</h4>
-              <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
-                <li>{t('cliSetup1')}</li>
-                <li>{t('cliSetup2')}</li>
-              </ol>
-              <div className="mt-4 mb-6">
-                <CodeBlock snippets={cliConfigSnippet} />
-              </div>
-
-              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliCommands')}</h4>
-              <div className="overflow-hidden rounded-xl border border-border mb-6">
-                <table className="w-full text-sm">
-                  <thead className="bg-secondary/50">
-                    <tr>
-                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmd')}</th>
-                      <th className="px-4 py-3 text-start font-bold text-primary">{t('cliCmdDesc')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border bg-card">
-                    {[
-                      ['python3 create-issuer.py create <org> <pw>', t('cliCmd1')],
-                      ['python3 create-issuer.py list', t('cliCmd2')],
-                      ['python3 create-issuer.py disable <username>', t('cliCmd3')],
-                      ['python3 create-issuer.py enable <username>', t('cliCmd4')],
-                      ['python3 create-issuer.py renew <username>', t('cliCmd5')],
-                      ['python3 create-issuer.py', t('cliCmd6')],
-                    ].map(([cmd, desc], i) => (
-                      <tr key={i}>
-                        <td className="px-4 py-3 font-mono text-xs text-primary" dir="ltr">{cmd}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{desc}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <h4 className="mb-3 text-sm font-bold text-foreground">{t('cliExample')}</h4>
-              <div className="mt-4">
-                <CodeBlock snippets={cliCmdSnippet} />
-              </div>
-              <p className="mt-4 mb-2 text-sm text-muted-foreground">{t('cliExampleDesc')}</p>
-              <CodeBlock snippets={cliOutputSnippet} />
             </div>
           </section>
 

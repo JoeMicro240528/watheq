@@ -20,6 +20,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
   const nodes = [
     {
       id: 1,
+      guideStep: 1,
       title: t('n1Title'),
       desc: t('n1Desc'),
       icon: ShieldCheck,
@@ -29,6 +30,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
     },
     {
       id: 2,
+      guideStep: 2,
       title: t('n2Title'),
       desc: t('n2Desc'),
       icon: UserPlus,
@@ -38,6 +40,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
     },
     {
       id: 3,
+      guideStep: 4,
       title: t('n3Title'),
       desc: t('n3Desc'),
       icon: FilePlus,
@@ -47,6 +50,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
     },
     {
       id: 4,
+      guideStep: 5,
       title: t('n4Title'),
       desc: t('n4Desc'),
       icon: PenTool,
@@ -56,6 +60,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
     },
     {
       id: 5,
+      guideStep: 6,
       title: t('n5Title'),
       desc: t('n5Desc'),
       icon: XCircle,
@@ -65,6 +70,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
     },
     {
       id: 6,
+      guideStep: 7,
       title: t('n6Title'),
       desc: t('n6Desc'),
       icon: CheckCircle,
@@ -250,7 +256,7 @@ export function FlowDiagram({ codeBlocks }: { codeBlocks?: React.ReactNode[] }) 
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                  <a href={`/${locale}/guide#step-${selectedNode.id}`} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
+                  <a href={`/${locale}/guide#step-${selectedNode.guideStep}`} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90">
                     {t('viewInGuide')}
                   </a>
                 </div>
