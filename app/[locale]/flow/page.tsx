@@ -1,12 +1,14 @@
-import { ArrowRight, ShieldCheck, QrCode } from 'lucide-react'
+import { ArrowRight, ShieldCheck, QrCode, Workflow } from 'lucide-react'
 import { FlowDiagram } from './flow-diagram'
 import { CodeBlock } from '@/components/ui/code-block'
 import Link from 'next/link'
 import { LanguageToggle } from '@/components/ui/language-toggle'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { getTranslations } from 'next-intl/server'
 import { useTranslations, useLocale } from 'next-intl'
+import { SiteHeader } from '@/components/ui/site-header'
 
 import { step1Snippets, step3Snippets, step4bSnippets, step5bSnippets, step6Snippets, step7Snippets } from '@/lib/snippets'
 
@@ -26,36 +28,38 @@ export default function FlowPage() {
   const dir = isRtl ? 'rtl' : 'ltr'
 
   return (
-    <div dir={dir} className="min-h-screen bg-background text-foreground selection:bg-accent/30">
-      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 px-6 py-4 backdrop-blur-md lg:px-10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="flex items-center gap-2" aria-label={isRtl ? "ثقة - الصفحة الرئيسية" : "Thiqa - Home"}>
-            <div className="flex items-center gap-[-0.6rem] text-primary">
-              <ShieldCheck className="size-6" strokeWidth={2.5} />
-              <QrCode className="size-6" strokeWidth={2.5} />
-              <img src={isRtl ? "/logo_ar.png" : "/logo_en.png"} alt={isRtl ? "شعار ثقة" : "Thiqa Logo"} className={cn("h-10", isRtl ? "mr-[-2.2rem]" : "ml-[-1.9rem]")} />
-            </div>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href={`/${locale}/guide`} className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-secondary/80 sm:flex sm:px-4 sm:text-sm">
-              <ArrowRight className={isRtl ? "size-3 sm:size-4" : "size-3 sm:size-4 rotate-180"} />
-              {navT('backToGuide')}
-            </Link>
-            <ThemeToggle />
-            <LanguageToggle />
-          </div>
-        </div>
-      </header>
+    <div dir={dir} className="min-h-screen bg-background text-foreground selection:bg-brand-solid selection:text-white">
+      {/* ══ Official Institutional Header ══ */}
+      <SiteHeader active="flow" />
 
-      <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10 lg:py-16">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-black text-primary lg:text-5xl">{t('pageTitle')}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+      {/* ══ Watania-Style Deep Brand Hero ══ */}
+      <section className="relative bg-brand-deep text-white overflow-hidden py-12 lg:py-16 border-b border-line text-center">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+          <svg viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="0.7" className="absolute -top-40 start-1/2 -translate-x-1/2 w-[38rem] max-w-none text-on-deep-line opacity-20">
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(0 200 200)" />
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(30 200 200)" />
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(60 200 200)" />
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(90 200 200)" />
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(120 200 200)" />
+            <ellipse cx="200" cy="200" rx="190" ry="62" transform="rotate(150 200 200)" />
+          </svg>
+        </div>
+
+        <div className="relative mx-auto max-w-4xl px-4 lg:px-6">
+          <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold text-on-deep-muted backdrop-blur-sm">
+            <Workflow className="size-3.5" /> {navT('devCenter')}
+          </span>
+          <h1 className="text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl tracking-tight">
+            {t('pageTitle')}
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base lg:text-lg leading-relaxed text-on-deep-muted">
             {t('pageDesc')}
           </p>
         </div>
+      </section>
 
-        <FlowDiagram 
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 lg:px-6">
+        <FlowDiagram
           codeBlocks={[
             <CodeBlock key={1} snippets={step1Snippets} />,
             <CodeBlock key={2} snippets={step3Snippets} />,

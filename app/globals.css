@@ -6,7 +6,7 @@
 
 @theme {
   --font-sans: var(--font-arabic), sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -38,91 +38,240 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+
+  /* Watania Design System Tokens */
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-on-deep-muted: var(--on-deep-muted);
+  --color-on-deep-line: var(--on-deep-line);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning: var(--warning);
+
   --radius-sm: calc(var(--radius) * .6);
   --radius-md: calc(var(--radius) * .8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 11s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.75s linear infinite;
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .45; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes aurora {
+    0% { transform: translate(-8%, -4%) rotate(-4deg) scale(1); }
+    50% { transform: translate(6%, 4%) rotate(3deg) scale(1.12); }
+    100% { transform: translate(-4%, 6%) rotate(4deg) scale(1.05); }
+  }
 }
 
 :root {
   color-scheme: light;
-  --background: oklch(0.975 0.012 92);
-  --foreground: oklch(0.22 0.035 190);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.035 190);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.035 190);
-  --primary: oklch(0.28 0.07 190);
-  --primary-foreground: oklch(0.98 0.008 92);
-  --secondary: oklch(0.94 0.025 177);
-  --secondary-foreground: oklch(0.28 0.07 190);
-  --muted: oklch(0.94 0.012 92);
-  --muted-foreground: oklch(0.49 0.03 190);
-  --accent: oklch(0.7 0.135 170);
-  --accent-foreground: oklch(0.18 0.05 180);
-  --destructive: oklch(0.58 0.2 25);
-  --border: oklch(0.88 0.025 190);
-  --input: oklch(0.88 0.025 190);
-  --ring: oklch(0.68 0.12 170);
-  --chart-1: oklch(0.68 0.12 170);
-  --chart-2: oklch(0.28 0.07 190);
-  --chart-3: oklch(0.49 0.03 190);
-  --chart-4: oklch(0.8 0.08 92);
-  --chart-5: oklch(0.4 0.06 190);
-  --radius: .65rem;
-  --sidebar: oklch(0.98 0.008 92);
-  --sidebar-foreground: oklch(0.22 0.035 190);
-  --sidebar-primary: oklch(0.28 0.07 190);
-  --sidebar-primary-foreground: oklch(0.98 0.008 92);
-  --sidebar-accent: oklch(0.94 0.025 177);
-  --sidebar-accent-foreground: oklch(0.28 0.07 190);
-  --sidebar-border: oklch(0.88 0.025 190);
-  --sidebar-ring: oklch(0.68 0.12 170);
+  /* Watania Official National Colors */
+  --paper: #f4f6f2;
+  --surface: #ffffff;
+  --ink: #14201a;
+  --ink-muted: #4d5a53;
+  --line: #dde3de;
+  --brand: #006a35;
+  --brand-solid: #007a3d;
+  --brand-soft: #e6f0ea;
+  --brand-deep: #0b3d24;
+  --on-deep-muted: #cfe3d6;
+  --on-deep-line: #8fb8a0;
+  --danger: #b30f29;
+  --danger-soft: #fcebee;
+  --warning: #8a5300;
+  --warning-soft: #fff6e0;
+  --radius: 0.75rem;
+
+  /* Semantic UI Tokens */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand-solid);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-soft);
+  --secondary-foreground: var(--brand-deep);
+  --muted: #edf2ed;
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand);
+  --accent-foreground: #ffffff;
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand-solid);
+  --chart-1: var(--brand-solid);
+  --chart-2: var(--brand-deep);
+  --chart-3: var(--brand);
+  --chart-4: #8a5300;
+  --chart-5: #4d5a53;
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand-solid);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: var(--brand-deep);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand-solid);
 }
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.13 0.02 240);
-  --foreground: oklch(0.93 0.01 210);
-  --card: oklch(0.17 0.02 240);
-  --card-foreground: oklch(0.93 0.01 210);
-  --popover: oklch(0.17 0.02 240);
-  --popover-foreground: oklch(0.93 0.01 210);
-  --primary: oklch(0.78 0.12 175);
-  --primary-foreground: oklch(0.13 0.02 240);
-  --secondary: oklch(0.22 0.025 240);
-  --secondary-foreground: oklch(0.78 0.12 175);
-  --muted: oklch(0.20 0.018 240);
-  --muted-foreground: oklch(0.60 0.02 210);
-  --accent: oklch(0.65 0.14 170);
-  --accent-foreground: oklch(0.13 0.02 240);
-  --destructive: oklch(0.60 0.22 25);
-  --border: oklch(0.26 0.025 240);
-  --input: oklch(0.26 0.025 240);
-  --ring: oklch(0.65 0.14 170);
-  --chart-1: oklch(0.65 0.14 170);
-  --chart-2: oklch(0.78 0.12 175);
-  --chart-3: oklch(0.60 0.02 210);
-  --chart-4: oklch(0.75 0.10 92);
-  --chart-5: oklch(0.50 0.06 240);
-  --sidebar: oklch(0.17 0.02 240);
-  --sidebar-foreground: oklch(0.93 0.01 210);
-  --sidebar-primary: oklch(0.78 0.12 175);
-  --sidebar-primary-foreground: oklch(0.13 0.02 240);
-  --sidebar-accent: oklch(0.22 0.025 240);
-  --sidebar-accent-foreground: oklch(0.78 0.12 175);
-  --sidebar-border: oklch(0.26 0.025 240);
-  --sidebar-ring: oklch(0.65 0.14 170);
+  --paper: #0f1613;
+  --surface: #202d26;
+  --ink: #eef2ef;
+  --ink-muted: #b7c2bb;
+  --line: #3f5248;
+  --brand: #5fdc96;
+  --brand-solid: #23874f;
+  --brand-soft: #1a3a29;
+  --brand-deep: #173d2a;
+  --on-deep-muted: #cfe3d6;
+  --on-deep-line: #4e755f;
+  --danger: #ff8a98;
+  --danger-soft: #3a1f24;
+  --warning: #f5c071;
+  --warning-soft: #33291a;
+  --radius: 0.75rem;
+
+  /* Semantic UI Tokens */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: #0a1c12;
+  --secondary: var(--brand-soft);
+  --secondary-foreground: var(--brand);
+  --muted: #18221c;
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand-solid);
+  --accent-foreground: #ffffff;
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+  --chart-1: var(--brand);
+  --chart-2: var(--brand-solid);
+  --chart-3: #cfe3d6;
+  --chart-4: #f5c071;
+  --chart-5: #b7c2bb;
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #0a1c12;
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: var(--brand);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand);
 }
 
 * { @apply border-border outline-ring/50; }
 html { scroll-behavior: smooth; background: var(--background); }
-body { 
-  @apply bg-background text-foreground; 
+body {
+  @apply bg-background text-foreground;
   font-family: var(--font-arabic), "Noto Sans Arabic", sans-serif !important;
 }
 a, button { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: no-preference) {
-  a, button { transition-duration: 180ms; transition-property: color, background-color, border-color, transform, box-shadow; }
+  a, button { transition-duration: 200ms; transition-property: color, background-color, border-color, transform, box-shadow; }
 }
-::selection { background: oklch(0.7 0.135 170 / .3); }
+::selection { background: var(--brand-solid); color: #ffffff; }
+
+/* ---- Watania Custom design utilities ---- */
+
+/* Subtle governmental grid */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 106, 53, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 106, 53, 0.05) 1px, transparent 1px);
+  background-size: 2.75rem 2.75rem;
+}
+.dark .bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(95, 220, 150, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(95, 220, 150, 0.06) 1px, transparent 1px);
+}
+
+/* Fading mask for grid overlays */
+@utility mask-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 70%, transparent);
+}
+@utility mask-fade-radial {
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 35%, black 30%, transparent 100%);
+}
+
+/* Brand gradient text */
+@utility text-gradient-brand {
+  background-image: linear-gradient(100deg, var(--brand-solid), #006a35 80%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.dark .text-gradient-brand {
+  background-image: linear-gradient(100deg, #5fdc96, #23874f 80%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Institutional Surface */
+@utility surface-card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Glass surface */
+@utility glass {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+/* Rotating rosette ellipse animation */
+@utility animate-rosette {
+  transform-origin: 200px 200px;
+  animation: rosette-spin 60s linear infinite;
+}
+@keyframes rosette-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Shimmer sweep for progress-like bars */
+@utility shimmer-bar {
+  background: linear-gradient(
+    100deg,
+    var(--brand-solid) 20%,
+    #5fdc96 45%,
+    var(--brand-solid) 70%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
