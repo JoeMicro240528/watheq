@@ -193,7 +193,7 @@
   "flow": {
     "pageTitle": "Integration Flow",
     "pageDesc": "An interactive overview of the issuer and document lifecycle on Thiqa. Hover over any step to see details.",
-    "clickHint": "Click to view details and code examples 👆",
+    "clickHint": "Click to view details and code examples",
     "step": "Step"
   },
   "metadata": {
@@ -206,7 +206,7 @@
   },
   "flowDiagram": {
     "step": "Step",
-    "clickHint": "Click to view details and code examples 👆",
+    "clickHint": "Click to view details and code examples",
     "example": "Practical Example:",
     "viewInGuide": "View Step in Guide",
     "n1Title": "Obtain Certificate",
