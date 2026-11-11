@@ -63,8 +63,9 @@ export default async function LocaleLayout({
       lang={locale}
       dir={isRtl ? 'rtl' : 'ltr'}
       className={`bg-background ${tajawal.variable}`}
+      suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             {children}
